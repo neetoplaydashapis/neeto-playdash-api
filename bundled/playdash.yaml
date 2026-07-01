@@ -1,0 +1,740 @@
+openapi: 3.0.3
+info:
+  title: NeetoPlaydash APIs
+  version: 1.0.0
+  description: APIs to read projects, runs, test entities, result histories and traces from NeetoPlaydash.
+servers:
+  - description: NeetoPlaydash APIs
+    url: https://{your-subdomain}.neetoplaydash.com/api/external/v1
+    variables:
+      your-subdomain:
+        default: spinkart
+        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+tags:
+  - name: Projects
+    description: APIs to list projects in the workspace.
+  - name: Runs
+    description: APIs to list runs and fetch a run with its specs.
+  - name: Test Entities
+    description: APIs to list test entities and fetch a test entity with its outcomes.
+  - name: Result Histories
+    description: APIs to fetch the historical results of a test entity.
+  - name: Traces
+    description: APIs to fetch Playwright traces for a run or a test entity.
+paths:
+  /projects:
+    get:
+      summary: List projects
+      operationId: listProjects
+      tags:
+        - Projects
+      description: List projects in the workspace.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/page_number_param'
+        - $ref: '#/components/parameters/page_size_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. Defaults to 15 projects per page (maximum 50).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project_list_response'
+  /projects/{project_id}/runs:
+    get:
+      summary: List runs
+      operationId: listRuns
+      tags:
+        - Runs
+      description: List runs for a project.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - in: query
+          name: branch
+          description: Filter runs by branch name.
+          required: false
+          schema:
+            type: string
+            example: main
+        - in: query
+          name: status
+          description: Filter runs by status.
+          required: false
+          schema:
+            $ref: '#/components/schemas/run_status'
+        - $ref: '#/components/parameters/page_number_param'
+        - $ref: '#/components/parameters/page_size_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. Defaults to 15 runs per page (maximum 50).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/run_list_response'
+  /projects/{project_id}/runs/{run_id}:
+    get:
+      summary: Get run
+      operationId: getRun
+      tags:
+        - Runs
+      description: Get a run along with its specs and the tests grouped under each spec.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+        - in: query
+          name: status
+          description: Filter the returned tests by status. Only specs that contain at least one matching test are returned.
+          required: false
+          schema:
+            type: string
+            enum:
+              - passed
+              - failed
+              - skipped
+              - interrupted
+              - timed_out
+              - flaky
+            example: failed
+        - in: query
+          name: page
+          description: Page of specs to retrieve, starting from 1. Defaults to 1 when omitted.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - $ref: '#/components/parameters/page_size_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. Specs are paginated with a default of 30 per page (maximum 100).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/run_detail_response'
+  /projects/{project_id}/runs/{run_id}/test_entities:
+    get:
+      summary: List test entities
+      operationId: listTestEntities
+      tags:
+        - Test Entities
+      description: List test entities (specs or tests) for a run.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+        - in: query
+          name: kind
+          description: Kind of test entity to list. Defaults to `spec`.
+          required: false
+          schema:
+            type: string
+            enum:
+              - spec
+              - test
+            default: spec
+            example: spec
+        - in: query
+          name: status
+          description: Filter by status. Accepts one or more statuses as a comma-separated list.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - passed
+                - failed
+                - skipped
+                - interrupted
+                - timed_out
+                - flaky
+            example:
+              - failed
+              - flaky
+        - $ref: '#/components/parameters/page_number_param'
+        - $ref: '#/components/parameters/page_size_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. Defaults to 25 test entities per page (maximum 100).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/test_entity_list_response'
+  /projects/{project_id}/runs/{run_id}/test_entities/{test_entity_id}:
+    get:
+      summary: Get test entity
+      operationId: getTestEntity
+      tags:
+        - Test Entities
+      description: Get a test entity along with its outcomes and the attempts (including screenshots, videos, traces and Lighthouse reports) for each outcome.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+        - $ref: '#/components/parameters/test_entity_id_param'
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/test_entity_detail_response'
+  /projects/{project_id}/runs/{run_id}/test_entities/{test_entity_id}/result_histories:
+    get:
+      summary: List result histories
+      operationId: listResultHistories
+      tags:
+        - Result Histories
+      description: List the historical results of a test entity across previous runs within a look-back window.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+        - $ref: '#/components/parameters/test_entity_id_param'
+        - in: query
+          name: days
+          description: Number of days to look back from the anchor date. Defaults to 7.
+          required: false
+          schema:
+            type: integer
+            default: 7
+            example: 14
+        - in: query
+          name: result_history_started_at
+          description: Anchor date (ISO 8601) to look back from. Defaults to the latest result of the test entity in this run.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: '2026-06-28T00:00:00.000Z'
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result_history_list_response'
+  /projects/{project_id}/runs/{run_id}/traces:
+    get:
+      summary: List traces
+      operationId: listTraces
+      tags:
+        - Traces
+      description: List Playwright traces for a run. Optionally scope the traces to a single test entity.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+        - in: query
+          name: test_entity_id
+          description: Restrict the traces to a single test entity. When omitted, traces for all test entities in the run are returned.
+          required: false
+          schema:
+            type: string
+            example: vhrscje
+      responses:
+        '200':
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/trace_list_response'
+components:
+  parameters:
+    api_key_header:
+      in: header
+      name: X-Api-Key
+      description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/getting-started/authentication) for more information.
+      required: true
+      schema:
+        type: string
+    accept_header:
+      in: header
+      name: Accept
+      description: Specifies the expected response format. Must be set to `application/json` for proper API communication.
+      required: true
+      schema:
+        type: string
+        enum:
+          - application/json
+        default: application/json
+    page_number_param:
+      in: query
+      name: page_number
+      description: Page of results to retrieve, starting from 1. Defaults to 1 when omitted.
+      required: false
+      schema:
+        type: integer
+        default: 1
+        example: 1
+    page_size_param:
+      in: query
+      name: page_size
+      description: Number of records returned per page. Each endpoint applies its own default and maximum value.
+      required: false
+      schema:
+        type: integer
+        example: 15
+    project_id_param:
+      in: path
+      name: project_id
+      description: Id of the project. You can get `project_id` by listing your projects using the [List projects](/api-reference/projects/list) API.
+      required: true
+      schema:
+        type: string
+        example: pdqmxlz
+    run_id_param:
+      in: path
+      name: run_id
+      description: Id of the run. You can get `run_id` by listing runs using the [List runs](/api-reference/runs/list) API.
+      required: true
+      schema:
+        type: string
+        example: kftwnab
+    test_entity_id_param:
+      in: path
+      name: test_entity_id
+      description: Id of the test entity (a spec or a test). You can get `test_entity_id` by listing test entities using the [List test entities](/api-reference/test-entities/list) API.
+      required: true
+      schema:
+        type: string
+        example: vhrscje
+  schemas:
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the project.
+          example: pdqmxlz
+        name:
+          type: string
+          description: Name of the project.
+          example: Spinkart Web
+        archived:
+          type: boolean
+          description: Whether the project has been archived.
+          example: false
+    pagination:
+      type: object
+      properties:
+        total_records:
+          type: integer
+          description: Total number of records across all pages.
+          example: 42
+        total_pages:
+          type: integer
+          description: Total number of pages available.
+          example: 3
+        current_page_number:
+          type: integer
+          description: Current page number.
+          example: 1
+        page_size:
+          type: integer
+          description: Number of records per page.
+          example: 15
+    project_list_response:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/project'
+        pagination:
+          $ref: '#/components/schemas/pagination'
+    run_status:
+      type: string
+      description: Current status of the run.
+      enum:
+        - running
+        - passed
+        - failed
+        - passing
+        - failing
+        - timedOut
+        - interrupted
+      example: passed
+    run_statistics:
+      type: array
+      description: Aggregated count of tests grouped by their status.
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Humanized status name.
+            example: Passed
+          value:
+            type: integer
+            description: Number of tests with this status.
+            example: 38
+      example:
+        - name: Passed
+          value: 38
+        - name: Failed
+          value: 2
+        - name: Flaky
+          value: 1
+    run_base:
+      type: object
+      properties:
+        commit_id:
+          type: string
+          description: SHA of the commit the run was triggered for.
+          example: 9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5
+        created_at:
+          type: string
+          format: date-time
+          description: Time at which the run was created.
+          example: '2026-06-28T09:14:22.000Z'
+        commit_name:
+          type: string
+          description: Commit message associated with the run.
+          example: Fix flaky checkout spec
+        status:
+          $ref: '#/components/schemas/run_status'
+        duration:
+          type: number
+          nullable: true
+          description: Total duration of the run in seconds.
+          example: 182.45
+        ci_build_id:
+          type: string
+          description: Identifier of the CI build that reported the run.
+          example: gh-actions-4821
+        branch:
+          type: string
+          nullable: true
+          description: Branch the run was executed on.
+          example: main
+        author:
+          type: string
+          nullable: true
+          description: Author of the commit.
+          example: Oliver Smith
+        tags:
+          type: array
+          description: Tags associated with the run.
+          items:
+            type: string
+          example:
+            - smoke
+            - nightly
+        is_running:
+          type: boolean
+          description: Whether the run is still in progress.
+          example: false
+        run_statistics:
+          $ref: '#/components/schemas/run_statistics'
+    run:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the run.
+              example: kftwnab
+        - $ref: '#/components/schemas/run_base'
+    run_list_response:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/run'
+        pagination:
+          $ref: '#/components/schemas/pagination'
+    spec_test:
+      type: object
+      properties:
+        test_id:
+          type: string
+          description: Unique identifier of the test entity.
+          example: vhrscje
+        title:
+          type: string
+          description: Title of the test.
+          example: adds an item to the cart
+        status:
+          type: string
+          description: Status of the test in this run.
+          example: passed
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test in seconds. Omitted when not available.
+          example: 3.21
+    spec:
+      type: object
+      properties:
+        spec_id:
+          type: string
+          description: Unique identifier of the spec entity.
+          example: wbnxtyz
+        file_name:
+          type: string
+          description: Spec file name.
+          example: cart.spec.ts
+        tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/spec_test'
+    run_detail_response:
+      allOf:
+        - type: object
+          properties:
+            project_id:
+              type: string
+              description: Unique identifier of the project.
+              example: pdqmxlz
+            run_id:
+              type: string
+              description: Unique identifier of the run.
+              example: kftwnab
+        - $ref: '#/components/schemas/run_base'
+        - type: object
+          properties:
+            total_shards:
+              type: integer
+              nullable: true
+              description: Total number of shards configured for the run.
+              example: 4
+            specs:
+              type: array
+              description: Specs executed in the run along with their grouped tests.
+              items:
+                $ref: '#/components/schemas/spec'
+            pagination:
+              $ref: '#/components/schemas/pagination'
+    test_entity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test entity.
+          example: vhrscje
+        title:
+          type: string
+          description: Title of the test entity. For specs this is the file name.
+          example: cart.spec.ts
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test entity in seconds.
+          example: 12.83
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Time at which the test entity started executing.
+          example: '2026-06-28T09:14:25.000Z'
+        tests_count:
+          type: integer
+          description: Number of tests under this entity.
+          example: 6
+        status:
+          type: string
+          description: Aggregated status of the test entity.
+          example: passed
+    test_entity_list_response:
+      type: object
+      properties:
+        test_entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/test_entity'
+        pagination:
+          $ref: '#/components/schemas/pagination'
+    attempt:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of this attempt.
+          example: passed
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the attempt in seconds.
+          example: 3.02
+        screenshots:
+          type: array
+          description: URLs of screenshots captured during the attempt.
+          items:
+            type: string
+            format: uri
+        videos:
+          type: array
+          description: URLs of videos captured during the attempt.
+          items:
+            type: string
+            format: uri
+        traces:
+          type: array
+          description: URLs of Playwright traces captured during the attempt.
+          items:
+            type: string
+            format: uri
+        lighthouses:
+          type: array
+          description: URLs of Lighthouse reports captured during the attempt.
+          items:
+            type: string
+            format: uri
+    outcome:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the outcome.
+          example: passed
+        repeat_each_index:
+          type: integer
+          nullable: true
+          description: Index of the repetition when the test is repeated.
+          example: 0
+        shard:
+          type: integer
+          nullable: true
+          description: Shard the outcome was executed on.
+          example: 1
+        is_expected:
+          type: boolean
+          nullable: true
+          description: Whether the outcome matched the expected result.
+          example: true
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/attempt'
+    test_entity_detail_response:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the test entity.
+          example: adds an item to the cart
+        describe_path:
+          type: array
+          description: Ordered list of ancestor describe blocks leading to this test.
+          items:
+            type: string
+          example:
+            - Cart
+            - when logged in
+        status:
+          type: string
+          description: Aggregated status of the test entity.
+          example: passed
+        outcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/outcome'
+    result_history_run:
+      type: object
+      properties:
+        commit_name:
+          type: string
+          description: Commit message associated with the run.
+          example: Fix flaky checkout spec
+        branch:
+          type: string
+          nullable: true
+          description: Branch the run was executed on.
+          example: main
+        author:
+          type: string
+          nullable: true
+          description: Author of the commit.
+          example: Oliver Smith
+        tags:
+          type: array
+          items:
+            type: string
+          example:
+            - nightly
+        commit_id:
+          type: string
+          description: SHA of the commit.
+          example: 9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5
+        ci_build_id:
+          type: string
+          description: Identifier of the CI build that reported the run.
+          example: gh-actions-4821
+        duration:
+          type: number
+          nullable: true
+          description: Total duration of the run in seconds.
+          example: 182.45
+        status:
+          type: string
+          description: Status of the run.
+          example: passed
+    result_history:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the test entity in this historical run.
+          example: passed
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test entity in this run, in seconds.
+          example: 3.21
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Time at which this result started.
+          example: '2026-06-27T09:14:25.000Z'
+        run_id:
+          type: string
+          description: Unique identifier of the run this result belongs to.
+          example: kftwnab
+        run:
+          $ref: '#/components/schemas/result_history_run'
+    result_history_list_response:
+      type: object
+      properties:
+        result_histories:
+          type: array
+          items:
+            $ref: '#/components/schemas/result_history'
+    trace:
+      type: object
+      properties:
+        test_entity_id:
+          type: string
+          description: Unique identifier of the test entity the traces belong to.
+          example: vhrscje
+        title:
+          type: string
+          description: Title of the test entity.
+          example: adds an item to the cart
+        trace_urls:
+          type: array
+          description: Playwright trace viewer URLs for the captured traces.
+          items:
+            type: string
+            format: uri
+          example:
+            - https://trace.playwright.dev/?trace=https://cdn.neetoplaydash.com/traces/abc123.zip
+    trace_list_response:
+      type: object
+      properties:
+        traces:
+          type: array
+          items:
+            $ref: '#/components/schemas/trace'

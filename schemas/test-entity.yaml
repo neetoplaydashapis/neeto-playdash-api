@@ -1,0 +1,133 @@
+components:
+  schemas:
+    # Test entity object as returned in the list endpoint
+    test_entity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test entity.
+          example: "vhrscje"
+        title:
+          type: string
+          description: Title of the test entity. For specs this is the file name.
+          example: "cart.spec.ts"
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test entity in seconds.
+          example: 12.83
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Time at which the test entity started executing.
+          example: "2026-06-28T09:14:25.000Z"
+        tests_count:
+          type: integer
+          description: Number of tests under this entity.
+          example: 6
+        status:
+          type: string
+          description: Aggregated status of the test entity.
+          example: "passed"
+
+    # Test entity list response structure
+    test_entity_list_response:
+      type: object
+      properties:
+        test_entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/test_entity'
+        pagination:
+          $ref: '../schemas/common.yaml#/components/schemas/pagination'
+
+    # A single attempt of a test outcome
+    attempt:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of this attempt.
+          example: "passed"
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the attempt in seconds.
+          example: 3.02
+        screenshots:
+          type: array
+          description: URLs of screenshots captured during the attempt.
+          items:
+            type: string
+            format: uri
+        videos:
+          type: array
+          description: URLs of videos captured during the attempt.
+          items:
+            type: string
+            format: uri
+        traces:
+          type: array
+          description: URLs of Playwright traces captured during the attempt.
+          items:
+            type: string
+            format: uri
+        lighthouses:
+          type: array
+          description: URLs of Lighthouse reports captured during the attempt.
+          items:
+            type: string
+            format: uri
+
+    # A single outcome of a test entity along with its attempts
+    outcome:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the outcome.
+          example: "passed"
+        repeat_each_index:
+          type: integer
+          nullable: true
+          description: Index of the repetition when the test is repeated.
+          example: 0
+        shard:
+          type: integer
+          nullable: true
+          description: Shard the outcome was executed on.
+          example: 1
+        is_expected:
+          type: boolean
+          nullable: true
+          description: Whether the outcome matched the expected result.
+          example: true
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/attempt'
+
+    # Test entity detail (show) response structure
+    test_entity_detail_response:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the test entity.
+          example: "adds an item to the cart"
+        describe_path:
+          type: array
+          description: Ordered list of ancestor describe blocks leading to this test.
+          items:
+            type: string
+          example: ["Cart", "when logged in"]
+        status:
+          type: string
+          description: Aggregated status of the test entity.
+          example: "passed"
+        outcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/outcome'

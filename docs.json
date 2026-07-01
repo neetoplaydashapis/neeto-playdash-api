@@ -48,14 +48,40 @@
         ]
       },
       {
-        "group": "Team Members API",
-        "icon": "user-group",
+        "group": "Projects",
+        "icon": "folder",
         "pages": [
-          "api-reference/team-members/list",
-          "api-reference/team-members/add",
-          "api-reference/team-members/get",
-          "api-reference/team-members/update",
-          "api-reference/team-members/remove"
+          "api-reference/projects/list"
+        ]
+      },
+      {
+        "group": "Runs",
+        "icon": "play",
+        "pages": [
+          "api-reference/runs/list",
+          "api-reference/runs/get"
+        ]
+      },
+      {
+        "group": "Test Entities",
+        "icon": "vial",
+        "pages": [
+          "api-reference/test-entities/list",
+          "api-reference/test-entities/get"
+        ]
+      },
+      {
+        "group": "Result Histories",
+        "icon": "clock-rotate-left",
+        "pages": [
+          "api-reference/result-histories/list"
+        ]
+      },
+      {
+        "group": "Traces",
+        "icon": "route",
+        "pages": [
+          "api-reference/traces/list"
         ]
       }
     ]

@@ -1,0 +1,77 @@
+components:
+  schemas:
+    # Run details embedded in a result history entry
+    result_history_run:
+      type: object
+      properties:
+        commit_name:
+          type: string
+          description: Commit message associated with the run.
+          example: "Fix flaky checkout spec"
+        branch:
+          type: string
+          nullable: true
+          description: Branch the run was executed on.
+          example: "main"
+        author:
+          type: string
+          nullable: true
+          description: Author of the commit.
+          example: "Oliver Smith"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["nightly"]
+        commit_id:
+          type: string
+          description: SHA of the commit.
+          example: "9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5"
+        ci_build_id:
+          type: string
+          description: Identifier of the CI build that reported the run.
+          example: "gh-actions-4821"
+        duration:
+          type: number
+          nullable: true
+          description: Total duration of the run in seconds.
+          example: 182.45
+        status:
+          type: string
+          description: Status of the run.
+          example: "passed"
+
+    # A single historical result for a test entity
+    result_history:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the test entity in this historical run.
+          example: "passed"
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test entity in this run, in seconds.
+          example: 3.21
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Time at which this result started.
+          example: "2026-06-27T09:14:25.000Z"
+        run_id:
+          type: string
+          description: Unique identifier of the run this result belongs to.
+          example: "kftwnab"
+        run:
+          $ref: '#/components/schemas/result_history_run'
+
+    # Result history list response structure
+    result_history_list_response:
+      type: object
+      properties:
+        result_histories:
+          type: array
+          items:
+            $ref: '#/components/schemas/result_history'

@@ -1,0 +1,29 @@
+components:
+  schemas:
+    # Project object structure
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the project.
+          example: "pdqmxlz"
+        name:
+          type: string
+          description: Name of the project.
+          example: "Spinkart Web"
+        archived:
+          type: boolean
+          description: Whether the project has been archived.
+          example: false
+
+    # Project list response structure
+    project_list_response:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/project'
+        pagination:
+          $ref: '../schemas/common.yaml#/components/schemas/pagination'

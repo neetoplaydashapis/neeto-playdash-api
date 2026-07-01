@@ -1,0 +1,244 @@
+openapi: 3.0.3
+info:
+  title: NeetoPlaydash APIs
+  version: 1.0.0
+  description: APIs to read projects, runs, test entities, result histories and traces from NeetoPlaydash.
+
+servers:
+  - description: NeetoPlaydash APIs
+    url: https://{your-subdomain}.neetoplaydash.com/api/external/v1
+    variables:
+      your-subdomain:
+        default: spinkart
+        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+
+tags:
+  - name: Projects
+    description: APIs to list projects in the workspace.
+  - name: Runs
+    description: APIs to list runs and fetch a run with its specs.
+  - name: Test Entities
+    description: APIs to list test entities and fetch a test entity with its outcomes.
+  - name: Result Histories
+    description: APIs to fetch the historical results of a test entity.
+  - name: Traces
+    description: APIs to fetch Playwright traces for a run or a test entity.
+
+paths:
+  /projects:
+    get:
+      summary: List projects
+      operationId: listProjects
+      tags:
+        - Projects
+      description: List projects in the workspace.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/page_number_param"
+        - $ref: "../schemas/common.yaml#/page_size_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. Defaults to 15 projects per page (maximum 50).
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/project.yaml#/components/schemas/project_list_response"
+
+  /projects/{project_id}/runs:
+    get:
+      summary: List runs
+      operationId: listRuns
+      tags:
+        - Runs
+      description: List runs for a project.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - in: query
+          name: branch
+          description: Filter runs by branch name.
+          required: false
+          schema:
+            type: string
+            example: "main"
+        - in: query
+          name: status
+          description: Filter runs by status.
+          required: false
+          schema:
+            $ref: "../schemas/run.yaml#/components/schemas/run_status"
+        - $ref: "../schemas/common.yaml#/page_number_param"
+        - $ref: "../schemas/common.yaml#/page_size_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. Defaults to 15 runs per page (maximum 50).
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/run.yaml#/components/schemas/run_list_response"
+
+  /projects/{project_id}/runs/{run_id}:
+    get:
+      summary: Get run
+      operationId: getRun
+      tags:
+        - Runs
+      description: Get a run along with its specs and the tests grouped under each spec.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+        - in: query
+          name: status
+          description: Filter the returned tests by status. Only specs that contain at least one matching test are returned.
+          required: false
+          schema:
+            type: string
+            enum: ["passed", "failed", "skipped", "interrupted", "timed_out", "flaky"]
+            example: "failed"
+        - in: query
+          name: page
+          description: Page of specs to retrieve, starting from 1. Defaults to 1 when omitted.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - $ref: "../schemas/common.yaml#/page_size_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. Specs are paginated with a default of 30 per page (maximum 100).
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/run.yaml#/components/schemas/run_detail_response"
+
+  /projects/{project_id}/runs/{run_id}/test_entities:
+    get:
+      summary: List test entities
+      operationId: listTestEntities
+      tags:
+        - Test Entities
+      description: List test entities (specs or tests) for a run.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+        - in: query
+          name: kind
+          description: Kind of test entity to list. Defaults to `spec`.
+          required: false
+          schema:
+            type: string
+            enum: ["spec", "test"]
+            default: "spec"
+            example: "spec"
+        - in: query
+          name: status
+          description: Filter by status. Accepts one or more statuses as a comma-separated list.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["passed", "failed", "skipped", "interrupted", "timed_out", "flaky"]
+            example: ["failed", "flaky"]
+        - $ref: "../schemas/common.yaml#/page_number_param"
+        - $ref: "../schemas/common.yaml#/page_size_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. Defaults to 25 test entities per page (maximum 100).
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/test-entity.yaml#/components/schemas/test_entity_list_response"
+
+  /projects/{project_id}/runs/{run_id}/test_entities/{test_entity_id}:
+    get:
+      summary: Get test entity
+      operationId: getTestEntity
+      tags:
+        - Test Entities
+      description: Get a test entity along with its outcomes and the attempts (including screenshots, videos, traces and Lighthouse reports) for each outcome.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+        - $ref: "../schemas/common.yaml#/test_entity_id_param"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/test-entity.yaml#/components/schemas/test_entity_detail_response"
+
+  /projects/{project_id}/runs/{run_id}/test_entities/{test_entity_id}/result_histories:
+    get:
+      summary: List result histories
+      operationId: listResultHistories
+      tags:
+        - Result Histories
+      description: List the historical results of a test entity across previous runs within a look-back window.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+        - $ref: "../schemas/common.yaml#/test_entity_id_param"
+        - in: query
+          name: days
+          description: Number of days to look back from the anchor date. Defaults to 7.
+          required: false
+          schema:
+            type: integer
+            default: 7
+            example: 14
+        - in: query
+          name: result_history_started_at
+          description: Anchor date (ISO 8601) to look back from. Defaults to the latest result of the test entity in this run.
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2026-06-28T00:00:00.000Z"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/result-history.yaml#/components/schemas/result_history_list_response"
+
+  /projects/{project_id}/runs/{run_id}/traces:
+    get:
+      summary: List traces
+      operationId: listTraces
+      tags:
+        - Traces
+      description: List Playwright traces for a run. Optionally scope the traces to a single test entity.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+        - in: query
+          name: test_entity_id
+          description: Restrict the traces to a single test entity. When omitted, traces for all test entities in the run are returned.
+          required: false
+          schema:
+            type: string
+            example: "vhrscje"
+      responses:
+        "200":
+          description: OK - Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/trace.yaml#/components/schemas/trace_list_response"

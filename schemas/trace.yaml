@@ -1,0 +1,31 @@
+components:
+  schemas:
+    # Traces captured for a single test entity
+    trace:
+      type: object
+      properties:
+        test_entity_id:
+          type: string
+          description: Unique identifier of the test entity the traces belong to.
+          example: "vhrscje"
+        title:
+          type: string
+          description: Title of the test entity.
+          example: "adds an item to the cart"
+        trace_urls:
+          type: array
+          description: Playwright trace viewer URLs for the captured traces.
+          items:
+            type: string
+            format: uri
+          example:
+            - "https://trace.playwright.dev/?trace=https://cdn.neetoplaydash.com/traces/abc123.zip"
+
+    # Trace list response structure
+    trace_list_response:
+      type: object
+      properties:
+        traces:
+          type: array
+          items:
+            $ref: '#/components/schemas/trace'

@@ -1,0 +1,172 @@
+components:
+  schemas:
+    # Possible statuses of a run
+    run_status:
+      type: string
+      description: Current status of the run.
+      enum: ["running", "passed", "failed", "passing", "failing", "timedOut", "interrupted"]
+      example: "passed"
+
+    # Aggregated test status counts for a run
+    run_statistics:
+      type: array
+      description: Aggregated count of tests grouped by their status.
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Humanized status name.
+            example: "Passed"
+          value:
+            type: integer
+            description: Number of tests with this status.
+            example: 38
+      example:
+        - name: "Passed"
+          value: 38
+        - name: "Failed"
+          value: 2
+        - name: "Flaky"
+          value: 1
+
+    # Shared run attributes
+    run_base:
+      type: object
+      properties:
+        commit_id:
+          type: string
+          description: SHA of the commit the run was triggered for.
+          example: "9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5"
+        created_at:
+          type: string
+          format: date-time
+          description: Time at which the run was created.
+          example: "2026-06-28T09:14:22.000Z"
+        commit_name:
+          type: string
+          description: Commit message associated with the run.
+          example: "Fix flaky checkout spec"
+        status:
+          $ref: '#/components/schemas/run_status'
+        duration:
+          type: number
+          nullable: true
+          description: Total duration of the run in seconds.
+          example: 182.45
+        ci_build_id:
+          type: string
+          description: Identifier of the CI build that reported the run.
+          example: "gh-actions-4821"
+        branch:
+          type: string
+          nullable: true
+          description: Branch the run was executed on.
+          example: "main"
+        author:
+          type: string
+          nullable: true
+          description: Author of the commit.
+          example: "Oliver Smith"
+        tags:
+          type: array
+          description: Tags associated with the run.
+          items:
+            type: string
+          example: ["smoke", "nightly"]
+        is_running:
+          type: boolean
+          description: Whether the run is still in progress.
+          example: false
+        run_statistics:
+          $ref: '#/components/schemas/run_statistics'
+
+    # Run object as returned in the list endpoint
+    run:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the run.
+              example: "kftwnab"
+        - $ref: '#/components/schemas/run_base'
+
+    # A test grouped under a spec in the run detail response
+    spec_test:
+      type: object
+      properties:
+        test_id:
+          type: string
+          description: Unique identifier of the test entity.
+          example: "vhrscje"
+        title:
+          type: string
+          description: Title of the test.
+          example: "adds an item to the cart"
+        status:
+          type: string
+          description: Status of the test in this run.
+          example: "passed"
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the test in seconds. Omitted when not available.
+          example: 3.21
+
+    # A spec file with its grouped tests in the run detail response
+    spec:
+      type: object
+      properties:
+        spec_id:
+          type: string
+          description: Unique identifier of the spec entity.
+          example: "wbnxtyz"
+        file_name:
+          type: string
+          description: Spec file name.
+          example: "cart.spec.ts"
+        tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/spec_test'
+
+    # Run list response structure
+    run_list_response:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/run'
+        pagination:
+          $ref: '../schemas/common.yaml#/components/schemas/pagination'
+
+    # Run detail (show) response structure
+    run_detail_response:
+      allOf:
+        - type: object
+          properties:
+            project_id:
+              type: string
+              description: Unique identifier of the project.
+              example: "pdqmxlz"
+            run_id:
+              type: string
+              description: Unique identifier of the run.
+              example: "kftwnab"
+        - $ref: '#/components/schemas/run_base'
+        - type: object
+          properties:
+            total_shards:
+              type: integer
+              nullable: true
+              description: Total number of shards configured for the run.
+              example: 4
+            specs:
+              type: array
+              description: Specs executed in the run along with their grouped tests.
+              items:
+                $ref: '#/components/schemas/spec'
+            pagination:
+              $ref: '../schemas/common.yaml#/components/schemas/pagination'
