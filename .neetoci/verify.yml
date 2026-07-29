@@ -15,7 +15,7 @@ paths:
   - theme.css
   - package.json
   - yarn.lock
-  - .neetoci/default.yml
+  - .neetoci/verify.yml
   - .neetoci/scripts/*
 
 commands:
