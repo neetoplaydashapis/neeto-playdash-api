@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: NeetoPlaydash APIs
   version: 1.0.0
-  description: APIs to read projects, runs, test entities, result histories and traces from NeetoPlaydash.
+  description: APIs to read projects, runs, test entities, result histories, traces and top errors from NeetoPlaydash.
 
 servers:
   - description: NeetoPlaydash APIs
@@ -23,6 +23,8 @@ tags:
     description: APIs to fetch the historical results of a test entity.
   - name: Traces
     description: APIs to fetch Playwright traces for a run or a test entity.
+  - name: Top Errors
+    description: APIs to fetch a run's top errors, with the failing tests grouped by their shared error log.
 
 paths:
   /projects:
@@ -242,3 +244,23 @@ paths:
             application/json:
               schema:
                 $ref: "../schemas/trace.yaml#/components/schemas/trace_list_response"
+
+  /projects/{project_id}/runs/{run_id}/top_errors:
+    get:
+      summary: List top errors
+      operationId: listTopErrors
+      tags:
+        - Top Errors
+      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api-reference/test-entities/list) endpoint with a status filter instead.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - $ref: "../schemas/common.yaml#/run_id_param"
+      responses:
+        "200":
+          description: OK - Request succeeded. Returns at most 20 error groups, ordered by the number of affected tests.
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/top-error.yaml#/components/schemas/top_error_list_response"

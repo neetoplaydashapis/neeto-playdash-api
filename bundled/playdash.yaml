@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: NeetoPlaydash APIs
   version: 1.0.0
-  description: APIs to read projects, runs, test entities, result histories and traces from NeetoPlaydash.
+  description: APIs to read projects, runs, test entities, result histories, traces and top errors from NeetoPlaydash.
 servers:
   - description: NeetoPlaydash APIs
     url: https://{your-subdomain}.neetoplaydash.com/api/external/v1
@@ -21,6 +21,8 @@ tags:
     description: APIs to fetch the historical results of a test entity.
   - name: Traces
     description: APIs to fetch Playwright traces for a run or a test entity.
+  - name: Top Errors
+    description: APIs to fetch a run's top errors, with the failing tests grouped by their shared error log.
 paths:
   /projects:
     get:
@@ -249,6 +251,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/trace_list_response'
+  /projects/{project_id}/runs/{run_id}/top_errors:
+    get:
+      summary: List top errors
+      operationId: listTopErrors
+      tags:
+        - Top Errors
+      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api-reference/test-entities/list) endpoint with a status filter instead.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - $ref: '#/components/parameters/run_id_param'
+      responses:
+        '200':
+          description: OK - Request succeeded. Returns at most 20 error groups, ordered by the number of affected tests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/top_error_list_response'
 components:
   parameters:
     api_key_header:
@@ -738,3 +759,68 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/trace'
+    top_error_test_entity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test entity.
+          example: vhrscje
+        title:
+          type: string
+          description: Title of the test.
+          example: adds an item to the cart
+        spec:
+          type: object
+          description: The spec file the test belongs to.
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the spec.
+              example: bhkscfe
+            title:
+              type: string
+              description: Title of the spec.
+              example: cart.spec.ts
+        project:
+          type: string
+          description: Title of the project the test belongs to.
+          example: spinkart-web
+        describe_path:
+          type: array
+          description: Titles of the describe blocks enclosing the test, outermost first.
+          items:
+            type: string
+          example:
+            - Cart
+    top_error:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of tests affected by the error.
+          example: 3
+        log:
+          type: string
+          description: The error log the tests are grouped by, without Playwright's per-test `Call log:` section.
+          example: 'TimeoutError: locator.click: Timeout 10000ms exceeded.'
+        test_entity_ids:
+          type: array
+          description: Unique identifiers of every test affected by the error.
+          items:
+            type: string
+          example:
+            - vhrscje
+            - dhkscfj
+        test_entities:
+          type: array
+          description: The affected tests, each with its spec, project, and describe path.
+          items:
+            $ref: '#/components/schemas/top_error_test_entity'
+    top_error_list_response:
+      type: object
+      properties:
+        top_errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/top_error'

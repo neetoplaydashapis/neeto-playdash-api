@@ -1,0 +1,10 @@
+---
+title: "List top errors"
+openapi: "/bundled/playdash.yaml GET /projects/{project_id}/runs/{run_id}/top_errors"
+---
+
+import SubdomainInfo from "/snippets/subdomain-info.mdx";
+
+<SubdomainInfo />
+
+<Note>Returns at most the 20 largest error groups — when a run has more distinct errors, the smallest groups are omitted.</Note>

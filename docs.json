@@ -83,6 +83,13 @@
         "pages": [
           "api-reference/traces/list"
         ]
+      },
+      {
+        "group": "Top Errors",
+        "icon": "triangle-exclamation",
+        "pages": [
+          "api-reference/top-errors/list"
+        ]
       }
     ]
   },
