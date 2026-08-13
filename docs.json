@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "NeetoPlaydash API",
-  "description": "NeetoPlaydash API docs guide to manage runs from external channels",
+  "name": "NeetoPlaydash Docs",
+  "description": "NeetoPlaydash docs for the REST API, the command-line interface, and the MCP server.",
   "theme": "mint",
   "colors": {
     "primary": "#10B981",
@@ -35,60 +35,130 @@
     }
   },
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "icon": "rocket",
-        "pages": [
-          "getting-started/introduction",
-          "getting-started/workspace-subdomain",
-          "getting-started/authentication",
-          "getting-started/pagination",
-          "getting-started/response-codes"
+        "tab": "API Reference",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "getting-started/introduction",
+              "getting-started/workspace-subdomain",
+              "getting-started/authentication",
+              "getting-started/pagination",
+              "getting-started/response-codes"
+            ]
+          },
+          {
+            "group": "Projects",
+            "icon": "folder",
+            "pages": [
+              "api-reference/projects/list"
+            ]
+          },
+          {
+            "group": "Insights",
+            "icon": "chart-line",
+            "pages": [
+              "api-reference/insights/get"
+            ]
+          },
+          {
+            "group": "Runs",
+            "icon": "play",
+            "pages": [
+              "api-reference/runs/list",
+              "api-reference/runs/get"
+            ]
+          },
+          {
+            "group": "Test Entities",
+            "icon": "vial",
+            "pages": [
+              "api-reference/test-entities/list",
+              "api-reference/test-entities/get"
+            ]
+          },
+          {
+            "group": "Result Histories",
+            "icon": "clock-rotate-left",
+            "pages": [
+              "api-reference/result-histories/list"
+            ]
+          },
+          {
+            "group": "Traces",
+            "icon": "route",
+            "pages": [
+              "api-reference/traces/list"
+            ]
+          },
+          {
+            "group": "Top Errors",
+            "icon": "triangle-exclamation",
+            "pages": [
+              "api-reference/top-errors/list"
+            ]
+          }
         ]
       },
       {
-        "group": "Projects",
-        "icon": "folder",
-        "pages": [
-          "api-reference/projects/list"
+        "tab": "CLI",
+        "icon": "rectangle-terminal",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "cli/introduction",
+              "cli/installation",
+              "cli/authentication",
+              "cli/output-formats",
+              "cli/ai-assistants",
+              "cli/troubleshooting"
+            ]
+          },
+          {
+            "group": "Commands",
+            "icon": "terminal",
+            "pages": [
+              "cli-reference/overview",
+              "cli-reference/projects",
+              "cli-reference/insights",
+              "cli-reference/runs",
+              "cli-reference/test-entities",
+              "cli-reference/result-histories",
+              "cli-reference/traces",
+              "cli-reference/top-errors",
+              "cli-reference/utility"
+            ]
+          }
         ]
       },
       {
-        "group": "Runs",
-        "icon": "play",
-        "pages": [
-          "api-reference/runs/list",
-          "api-reference/runs/get"
-        ]
-      },
-      {
-        "group": "Test Entities",
-        "icon": "vial",
-        "pages": [
-          "api-reference/test-entities/list",
-          "api-reference/test-entities/get"
-        ]
-      },
-      {
-        "group": "Result Histories",
-        "icon": "clock-rotate-left",
-        "pages": [
-          "api-reference/result-histories/list"
-        ]
-      },
-      {
-        "group": "Traces",
-        "icon": "route",
-        "pages": [
-          "api-reference/traces/list"
-        ]
-      },
-      {
-        "group": "Top Errors",
-        "icon": "triangle-exclamation",
-        "pages": [
-          "api-reference/top-errors/list"
+        "tab": "MCP",
+        "icon": "plug",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "mcp/introduction",
+              "mcp/authentication",
+              "mcp/connect",
+              "mcp/examples",
+              "mcp/troubleshooting"
+            ]
+          },
+          {
+            "group": "Reference",
+            "icon": "wrench",
+            "pages": [
+              "mcp/tools"
+            ]
+          }
         ]
       }
     ]
@@ -102,7 +172,11 @@
       "proxy": true
     },
     "examples": {
-      "languages": ["curl", "javascript", "python"],
+      "languages": [
+        "curl",
+        "javascript",
+        "python"
+      ],
       "defaults": "all"
     }
   },

@@ -1,0 +1,260 @@
+---
+title: "Connect"
+description: "Point your AI assistant at the NeetoPlaydash MCP server."
+---
+
+NeetoPlaydash hosts the MCP server, so there is nothing to install or run locally. Add the endpoint to your assistant's MCP configuration, authenticate, and the NeetoPlaydash tools become available.
+
+## Server details
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://connect.neetoplaydash.com/mcp/messages` |
+| **Transport** | HTTP |
+| **Authentication** | OAuth 2.1, or an API key as a bearer token |
+| **Scopes** | `read`, `offline_access` |
+
+## Which method your client supports
+
+| Client | OAuth | API key |
+| --- | --- | --- |
+| Claude (web, desktop, Cowork) | Yes | - |
+| ChatGPT | Yes | - |
+| Claude Code | Yes | Yes |
+| Codex | Yes | Yes |
+| Cursor | Yes | Yes |
+| Gemini CLI | Yes | Yes |
+| VS Code | Yes | Yes |
+| Windsurf | Yes | Yes |
+
+For the clients that read a config file, the credential's presence is what selects the method: leave the `headers` block out and the client falls back to OAuth when the server challenges it. Read [Authentication](/mcp/authentication) before choosing - the two reach different things.
+
+## Connect with OAuth
+
+<Tabs>
+  <Tab title="Claude">
+    Open **Settings → Connectors**, click **Add**, then **Add custom connector**.
+
+    Give it a **Name** such as `NeetoPlaydash`, paste the URL, and click **Add**:
+
+    ```
+    https://connect.neetoplaydash.com/mcp/messages
+    ```
+
+    Claude opens NeetoPlaydash in your browser to sign in and approve the workspaces. This works on claude.ai, the Claude desktop app, and Cowork.
+  </Tab>
+  <Tab title="ChatGPT">
+    Turn on developer mode first: **Settings → Security and login → Developer mode**.
+
+    Then open **Plugins → Browse plugins → + → New Plugin**, paste the URL, and choose OAuth authentication:
+
+    ```
+    https://connect.neetoplaydash.com/mcp/messages
+    ```
+  </Tab>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http neetoplaydash https://connect.neetoplaydash.com/mcp/messages
+    ```
+
+    Then run `/mcp` inside Claude Code and pick **neetoplaydash** to sign in. Omitting `--header` is what makes this an OAuth connection.
+  </Tab>
+  <Tab title="Codex">
+    Add the server to `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.neetoplaydash]
+    url = "https://connect.neetoplaydash.com/mcp/messages"
+    ```
+
+    Then sign in:
+
+    ```bash
+    codex mcp login neetoplaydash
+    ```
+
+    `auth` defaults to `oauth`, so it does not need to be set. Note that this file is TOML, not JSON.
+  </Tab>
+  <Tab title="Cursor">
+    Create or edit `~/.cursor/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "url": "https://connect.neetoplaydash.com/mcp/messages"
+        }
+      }
+    }
+    ```
+
+    Save the file, then restart Cursor or reload its window. Cursor prompts you to sign in the first time it connects. The remote server shape has no `type` field.
+  </Tab>
+  <Tab title="Gemini CLI">
+    Add the server to `~/.gemini/settings.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "httpUrl": "https://connect.neetoplaydash.com/mcp/messages"
+        }
+      }
+    }
+    ```
+
+    Use `httpUrl`, not `url` - `url` means SSE in Gemini CLI. The CLI discovers the OAuth configuration from the server and opens a browser on the first 401. Run `/mcp auth neetoplaydash` to manage it afterwards.
+  </Tab>
+  <Tab title="VS Code">
+    Create `.vscode/mcp.json` in your workspace:
+
+    ```json
+    {
+      "servers": {
+        "neetoplaydash": {
+          "type": "http",
+          "url": "https://connect.neetoplaydash.com/mcp/messages"
+        }
+      }
+    }
+    ```
+
+    VS Code prompts you to sign in when it first connects. This requires VS Code 1.99 or later and Copilot Chat's **Agent** mode. VS Code uses `servers`, not `mcpServers`.
+  </Tab>
+  <Tab title="Windsurf">
+    Edit `~/.codeium/windsurf/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "serverUrl": "https://connect.neetoplaydash.com/mcp/messages"
+        }
+      }
+    }
+    ```
+
+    Windsurf uses `serverUrl`, not `url`. Enable the server in **Settings → Cascade → MCP Servers** and sign in when prompted.
+  </Tab>
+</Tabs>
+
+## Connect with an API key
+
+Replace `YOUR_API_KEY` with your [NeetoPlaydash API key](/mcp/authentication) in each snippet below.
+
+<Tabs>
+  <Tab title="Claude Code">
+    Add the server to `~/.claude.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "type": "http",
+          "url": "https://connect.neetoplaydash.com/mcp/messages",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+
+    Save the file, then restart Claude Code.
+  </Tab>
+  <Tab title="Codex">
+    Put the key in an environment variable, then name that variable in `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.neetoplaydash]
+    url = "https://connect.neetoplaydash.com/mcp/messages"
+    bearer_token_env_var = "NEETOPLAYDASH_API_KEY"
+    ```
+
+    `bearer_token_env_var` takes the **name** of the environment variable, not the key itself.
+  </Tab>
+  <Tab title="Cursor">
+    Create or edit `~/.cursor/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "url": "https://connect.neetoplaydash.com/mcp/messages",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+
+    Save the file, then restart Cursor or reload its window.
+  </Tab>
+  <Tab title="Gemini CLI">
+    Add the server to `~/.gemini/settings.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "httpUrl": "https://connect.neetoplaydash.com/mcp/messages",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+
+    Use `httpUrl`, not `url` - `url` means SSE in Gemini CLI.
+  </Tab>
+  <Tab title="VS Code">
+    Create `.vscode/mcp.json` in your workspace:
+
+    ```json
+    {
+      "servers": {
+        "neetoplaydash": {
+          "type": "http",
+          "url": "https://connect.neetoplaydash.com/mcp/messages",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+
+    <Warning>
+      `.vscode/mcp.json` lives in your repository. Do not commit an API key - use
+      VS Code's input variables, or connect with OAuth instead.
+    </Warning>
+
+    This requires VS Code 1.99 or later and Copilot Chat's **Agent** mode. VS Code uses `servers`, not `mcpServers`.
+  </Tab>
+  <Tab title="Windsurf">
+    Edit `~/.codeium/windsurf/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "neetoplaydash": {
+          "serverUrl": "https://connect.neetoplaydash.com/mcp/messages",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+    ```
+
+    Windsurf uses `serverUrl`, not `url`. Enable the server in **Settings → Cascade → MCP Servers**. Cascade allows up to 100 tools across every connected server, so turn a few others off if it complains.
+  </Tab>
+</Tabs>
+
+## Verify the connection
+
+After your assistant reloads, confirm `neetoplaydash` is listed among its tools. Then try a prompt such as *"List my NeetoPlaydash projects."* Find more in [Examples](/mcp/examples).
+
+If it does not appear, see [Troubleshooting](/mcp/troubleshooting).

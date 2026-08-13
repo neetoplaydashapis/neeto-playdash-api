@@ -1,0 +1,64 @@
+---
+title: "AI assistants"
+description: "Teach Claude Code, Cursor, Copilot, and other assistants how to drive the CLI."
+---
+
+`neetoplaydash setup` writes NeetoPlaydash guidance into the assistant you already use, so it knows which commands exist, which flags they take, and which output format to ask for. Run the one for your tool:
+
+```bash
+neetoplaydash setup claude      # Register the plugin with Claude Code
+neetoplaydash setup cursor      # Write .cursor/rules/neetoplaydash.mdc
+neetoplaydash setup windsurf    # Write .windsurf/rules/neetoplaydash.md
+neetoplaydash setup copilot     # Append to .github/copilot-instructions.md
+neetoplaydash setup gemini      # Append to GEMINI.md
+neetoplaydash setup codex       # Append to AGENTS.md
+```
+
+You only need the ones you actually use. Each writes the same body of guidance in the format that assistant reads.
+
+## Where each command writes
+
+| Command | Target | Scope |
+| --- | --- | --- |
+| `setup claude` | `~/.config/neetoplaydash/claude-plugin` | Extracted plugin, installed from Claude Code |
+| `setup cursor` | `.cursor/rules/neetoplaydash.mdc` | Current project |
+| `setup windsurf` | `.windsurf/rules/neetoplaydash.md` | Current project |
+| `setup copilot` | `.github/copilot-instructions.md` | Current project, appended |
+| `setup gemini` | `GEMINI.md` | Current project, appended |
+| `setup codex` | `AGENTS.md` | Current project, appended |
+
+The four project-scoped targets are files in your repository. Check them in if you want the whole team's assistants to pick up the same guidance.
+
+## Claude Code
+
+`setup claude` extracts the plugin rather than installing it, because Claude Code installs plugins through interactive slash commands. It prints the two commands to paste:
+
+```bash
+neetoplaydash setup claude
+```
+
+```
+NeetoPlaydash plugin extracted to /Users/you/.config/neetoplaydash/claude-plugin
+
+  /plugin marketplace add /Users/you/.config/neetoplaydash/claude-plugin
+  /plugin install neetoplaydash@neetoplaydash
+```
+
+## Keeping the guidance current
+
+The written guidance is a snapshot taken from the binary that wrote it. After `neetoplaydash update`, re-run the `setup` command for your assistant to refresh it.
+
+Whatever the guidance says, the always-accurate command tree is available from the CLI itself:
+
+```bash
+neetoplaydash commands
+```
+
+That emits every command, description, and flag as JSON, which an assistant can read when it needs a flag the guidance does not mention.
+
+<Note>
+  The CLI is not the only way to connect an assistant. The
+  [MCP server](/mcp/introduction) exposes the same data over the Model Context
+  Protocol, which suits assistants that run outside a terminal - Claude and
+  ChatGPT on the web, for instance.
+</Note>

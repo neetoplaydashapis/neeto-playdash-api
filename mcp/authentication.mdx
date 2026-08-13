@@ -1,0 +1,93 @@
+---
+title: "Authentication"
+description: "Choose between OAuth and an API key, and understand what each one reaches."
+---
+
+The server accepts two credentials. The difference is not a setup preference - it changes which workspaces the connection can read and whether the access is attributable to a person.
+
+| | OAuth | API key |
+| --- | --- | --- |
+| **Reaches** | Every workspace you approve during sign-in | The one workspace the key belongs to |
+| **Identity** | A NeetoPlaydash user | None |
+| **Set up by** | Pasting the server URL and approving in a browser | Pasting a key into a config file |
+| **Expiry** | Access tokens refresh; you can revoke the grant | Valid until the key is revoked |
+| **Revoked from** | The server's revocation endpoint, or by the workspace | The workspace's API keys screen |
+
+Prefer OAuth. It carries an identity, it can be revoked without rotating a shared secret, and there is no key to leak into a config file that might get committed.
+
+<Warning>
+  Neither credential narrows what is readable **inside** a workspace.
+  NeetoPlaydash's tools read the whole workspace's projects, runs, and test
+  results, so an OAuth connection sees the same data in a granted workspace that
+  an API key would. The difference is which workspaces are reachable at all, and
+  whether the access is attributable.
+</Warning>
+
+## OAuth, scoped to the workspaces you approve
+
+The server implements OAuth 2.1 with PKCE and dynamic client registration, so a client that speaks it needs no configuration beyond the URL.
+
+| | |
+| --- | --- |
+| **Issuer** | `https://connect.neetoplaydash.com` |
+| **Authorization endpoint** | `https://connect.neetoplaydash.com/mcp/oauth/authorize` |
+| **Token endpoint** | `https://connect.neetoplaydash.com/mcp/oauth/token` |
+| **Registration endpoint** | `https://connect.neetoplaydash.com/mcp/oauth/register` |
+| **Revocation endpoint** | `https://connect.neetoplaydash.com/mcp/oauth/revoke` |
+| **Grant types** | `authorization_code`, `refresh_token` |
+| **PKCE** | `S256` |
+| **Scopes** | `read`, `offline_access` |
+
+Discovery metadata is published at `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource`, so most clients find all of this on their own.
+
+### Signing in
+
+<Steps>
+  <Step title="Add the server">
+    Point your client at `https://connect.neetoplaydash.com/mcp/messages` with no credential. See [Connect](/mcp/connect) for your client's exact steps.
+  </Step>
+  <Step title="Approve in the browser">
+    The client opens NeetoPlaydash in your browser. Sign in if you are not already.
+  </Step>
+  <Step title="Choose your workspaces">
+    If your account belongs to more than one NeetoPlaydash workspace, you pick which ones this connection may read. Only the ones you approve become reachable.
+  </Step>
+  <Step title="Return to the client">
+    The client stores the token and refreshes it as needed. `offline_access` is what makes that refresh possible, so you are not signed out mid-session.
+  </Step>
+</Steps>
+
+### Working across workspaces
+
+Every tool accepts an optional `workspace` argument naming a subdomain, and the `ListWorkspaces` tool reports which workspaces the connection may read. Omit `workspace` and the tool runs against the primary one.
+
+An API key has only one workspace, so `workspace` is redundant on that kind of connection.
+
+## API key, scoped to one workspace
+
+Use an API key when your client cannot do OAuth, or when you want a connection that belongs to the workspace rather than to a person - a shared bot, for instance.
+
+Generate one from your workspace's API keys screen; see the [help centre article](https://help.neetoplaydash.com/articles/api-keys). It is the same key the [REST API](/getting-started/authentication) uses.
+
+Send it as a bearer token:
+
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+The header differs from the one the REST API expects. The same key authenticates both, but the REST API reads it from `X-Api-Key` while the MCP server reads it from `Authorization`, because that is the only header MCP clients send.
+
+<Warning>
+  An API key grants full read access to its workspace and carries no identity,
+  so nothing in an audit trail says who used it. Treat it like a password. Take
+  particular care with clients that read an in-repository config file, such as
+  VS Code's `.vscode/mcp.json` - do not commit a key.
+</Warning>
+
+## How this compares to the other surfaces
+
+| Surface | Credential | Reaches |
+| --- | --- | --- |
+| [REST API](/getting-started/authentication) | `X-Api-Key` header | The key's workspace |
+| [CLI](/cli/authentication) | Browser sign-in, stored locally | Each workspace you signed in to |
+| MCP | OAuth, or an API key as a bearer token | The approved workspaces, or the key's workspace |

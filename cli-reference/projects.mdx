@@ -1,0 +1,60 @@
+---
+title: "projects"
+description: "List the projects in a workspace."
+---
+
+import ProjectsListFlags from '/snippets/cli/projects/list.mdx'
+
+A project is the top of the resource tree: it owns the runs, which own the test entities. Every other command takes a project id as its first positional argument, and `projects list` is where you get one.
+
+For fields and response details, see the [API reference](/api-reference/projects/list).
+
+<Note>
+  Sample output on this page uses `--json`. Pretty tables pick their columns
+  from the payload and the terminal width, so they are not reproducible; the
+  JSON envelope is. See [Output formats](/cli/output-formats).
+</Note>
+
+## projects list
+
+Lists every project in the workspace, newest first. Use it to find the `project_id` that the `runs`, `test-entities`, `traces`, `top-errors`, and `result-histories` commands need.
+
+```bash
+neetoplaydash projects list
+```
+
+<ProjectsListFlags />
+
+<Warning>
+  The `--page-size` help text says 100, but the server caps this endpoint at
+  **50** and silently clamps anything larger. Check `pagination.page_size` in
+  the response for the size actually applied.
+</Warning>
+
+```json Sample output
+{
+  "data": [
+    {
+      "id": "pdqmxlz",
+      "name": "Spinkart Web",
+      "archived": false
+    },
+    {
+      "id": "zmqhcvt",
+      "name": "Spinkart Admin",
+      "archived": true
+    }
+  ],
+  "breadcrumbs": [
+    { "label": "List runs", "command": "neetoplaydash runs list <project_id>" }
+  ],
+  "pagination": {
+    "total_records": 2,
+    "total_pages": 1,
+    "current_page_number": 1,
+    "page_size": 15
+  }
+}
+```
+
+Archived projects are listed alongside active ones and are marked by the `archived` flag.

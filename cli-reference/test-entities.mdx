@@ -1,0 +1,130 @@
+---
+title: "test-entities"
+description: "List the specs and tests a run recorded, and read one in full."
+---
+
+import TestEntitiesListFlags from '/snippets/cli/test-entities/list.mdx'
+import TestEntitiesGetFlags from '/snippets/cli/test-entities/get.mdx'
+
+A test entity is either a **spec** file or an individual **test**, selected with `--kind`. Only a test runs, so only a test has outcomes and attempts. A spec is the file its tests live in, so reading one returns the tests it contains rather than outcomes.
+
+For fields and response details, see the [API reference](/api-reference/test-entities/list).
+
+<Note>
+  Sample output on this page uses `--json`. Pretty tables pick their columns
+  from the payload and the terminal width, so they are not reproducible; the
+  JSON envelope is. See [Output formats](/cli/output-formats).
+</Note>
+
+## test-entities list
+
+Lists the specs or tests a run recorded. Filter to the failing ones to go straight from a red run to the tests that made it red.
+
+### Required arguments
+
+- `<run_id>` - the run whose entities to list, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
+```bash
+neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status failed,flaky
+```
+
+<TestEntitiesListFlags />
+
+`--kind` is `spec` when omitted. `--status` takes a comma-separated list, each member exactly one of `passed`, `failed`, `interrupted`, `timed_out`, `skipped`, `not_run`, `flaky`, `passing`, `failing`, `running`, `pending`. This command defaults to 25 records per page rather than 15.
+
+```json Sample output
+{
+  "data": [
+    {
+      "id": "vhrscje",
+      "title": "adds an item to the cart",
+      "duration": 12.83,
+      "started_at": "2026-06-28T09:14:25.000Z",
+      "tests_count": 6,
+      "status": "failed"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show test entity",
+      "command": "neetoplaydash test-entities get <test_entity_id> --project <project_id> --run <run_id>"
+    }
+  ],
+  "pagination": {
+    "total_records": 1,
+    "total_pages": 1,
+    "current_page_number": 1,
+    "page_size": 25
+  }
+}
+```
+
+For a spec, `title` is the file name.
+
+## test-entities get
+
+Shows one test entity with everything the run recorded for it. For a **test** that means the outcomes, the attempts inside each outcome, the Playwright error output, and time-limited links to the screenshots, videos, traces, and Lighthouse reports captured. For a **spec** it means the list of tests the run recorded in that file.
+
+### Required arguments
+
+- `<test_entity_id>` - the entity to show, from [`test-entities list`](#test-entities-list).
+- `--project <project_id>` - the project the run belongs to.
+- `--run <run_id>` - the run the entity was recorded in.
+
+```bash
+neetoplaydash test-entities get vhrscje --project pdqmxlz --run kftwnab
+```
+
+<TestEntitiesGetFlags />
+
+```json Sample output
+{
+  "data": {
+    "title": "adds an item to the cart",
+    "describe_path": ["Cart", "when logged in"],
+    "status": "failed",
+    "outcomes": [
+      {
+        "status": "failed",
+        "repeat_each_index": 0,
+        "shard": 1,
+        "is_expected": false,
+        "attempts": [
+          {
+            "status": "failed",
+            "duration": 3.02,
+            "log": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+            "screenshots": ["https://assets-cdn.neetoplaydash.com/screenshots/..."],
+            "videos": ["https://assets-cdn.neetoplaydash.com/videos/..."],
+            "traces": ["https://assets-cdn.neetoplaydash.com/traces/..."],
+            "lighthouses": []
+          }
+        ]
+      }
+    ],
+    "tests": []
+  },
+  "breadcrumbs": [
+    {
+      "label": "Result history",
+      "command": "neetoplaydash result-histories list <test_entity_id> --project <project_id> --run <run_id>"
+    },
+    {
+      "label": "Traces",
+      "command": "neetoplaydash traces list <run_id> --project <project_id> --test-entity-id <test_entity_id>"
+    }
+  ]
+}
+```
+
+`outcomes` and `tests` are complementary: a test fills `outcomes` and leaves `tests` empty, and a spec does the reverse, listing each contained test with its `id`, `title`, and `status` so you can read it individually.
+
+Artifact URLs are time-limited. Fetch them when you are about to open them rather than storing them.
+
+<Note>
+  A test entity id must name an entity the given run recorded. One that ran only
+  in other runs is refused rather than returned with a placeholder status.
+</Note>
+
+See the [API reference](/api-reference/test-entities/get) for the full response.

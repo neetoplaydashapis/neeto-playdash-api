@@ -1,30 +1,37 @@
 #!/usr/bin/env sh
 
-# Skip if no files that affect bundled* are staged
-if ! git diff --cached --name-only | grep -qE '^(docs[^/]*/|schemas[^/]*/|scripts/bundle\.sh)'; then
+# Skip if no files that affect generated output are staged
+if ! git diff --cached --name-only | grep -qE '^(docs[^/]*/|schemas[^/]*/|scripts/bundle\.sh|cli/catalog\.json|scripts/generate-cli-reference\.mjs)'; then
   exit 0
 fi
 
-echo "Source files changed — checking bundled* is up-to-date..."
+generated_status() {
+  git status --porcelain -- \
+    ':(glob)bundled*/**' \
+    ':(glob)snippets/cli/**' \
+    'cli-reference/overview.mdx'
+}
+
+echo "Source files changed — checking generated output is up-to-date..."
 echo "Running yarn build (this may take a moment)..."
 # This builds from the working tree (including unstaged changes), so partial
 # stages (git add -p) may not be caught here. CI validates the committed state
 # and acts as the safety net for this edge case.
 yarn build || exit 1
 
-# Only fail if there are unstaged or untracked changes in bundled*
+# Only fail if there are unstaged or untracked changes in the generated output
 # (porcelain second column non-space means working tree differs from index)
-if git status --porcelain -- ':(glob)bundled*/**' | grep -q '^.[^ ]'; then
+if generated_status | grep -q '^.[^ ]'; then
   echo ""
   echo "========================================================"
-  echo "  ERROR: bundled* is not in sync with source files"
+  echo "  ERROR: generated output is not in sync with sources"
   echo "========================================================"
   echo ""
-  echo "The following bundled files need to be staged:"
-  git status --porcelain -- ':(glob)bundled*/**' | grep '^.[^ ]' | sed 's/^/  /'
+  echo "The following generated files need to be staged:"
+  generated_status | grep '^.[^ ]' | sed 's/^/  /'
   echo ""
   echo "To fix:"
-  echo "  git add 'bundled*'"
+  echo "  git add 'bundled*' 'snippets/cli' cli-reference/overview.mdx"
   echo "  git commit ..."
   echo ""
   exit 1

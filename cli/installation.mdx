@@ -1,0 +1,72 @@
+---
+title: "Installation"
+description: "Install the neetoplaydash CLI on macOS, Linux, or Windows."
+---
+
+Install the `neetoplaydash` binary with the command for your platform, then [verify it](#verify-the-installation).
+
+<CodeGroup>
+```bash macOS
+brew install neetozone/tap/neetoplaydash
+```
+
+```bash Linux
+curl -fsSL https://neetoplaydash.com/cli/install.sh | sh
+```
+
+```powershell Windows
+irm https://neetoplaydash.com/cli/install.ps1 | iex
+```
+</CodeGroup>
+
+The shell and Windows installers download the latest release for your architecture (`amd64` or `arm64`), extract it, and add `neetoplaydash` to your `PATH`.
+
+## Other install methods
+
+<AccordionGroup>
+  <Accordion title="macOS - shell script">
+    ```bash
+    curl -fsSL https://neetoplaydash.com/cli/install.sh | sh
+    ```
+
+    Installs to `/usr/local/bin` and may prompt for `sudo`.
+  </Accordion>
+  <Accordion title="Windows - Command Prompt (CMD)">
+    ```cmd
+    curl -fsSL https://neetoplaydash.com/cli/install.cmd -o install.cmd && install.cmd
+    ```
+
+    Extracts to `%LOCALAPPDATA%\Programs\neetoplaydash` and adds it to your user `PATH`. This is equivalent to the PowerShell method.
+  </Accordion>
+</AccordionGroup>
+
+## Verify the installation
+
+Restart your terminal, then run:
+
+```bash
+neetoplaydash --help
+```
+
+You should see the list of available commands. To check the installed version:
+
+```bash
+neetoplaydash version
+```
+
+## Upgrade
+
+```bash
+neetoplaydash update
+```
+
+`update` detects how the CLI was installed and runs the matching upgrade: `brew upgrade` for a Homebrew install, and the install script otherwise. You can also upgrade a Homebrew install directly:
+
+```bash
+brew upgrade neetoplaydash
+```
+
+<Tip>
+  Next, [sign in](/cli/authentication) to a workspace and run `neetoplaydash doctor`
+  to confirm the CLI can reach NeetoPlaydash.
+</Tip>

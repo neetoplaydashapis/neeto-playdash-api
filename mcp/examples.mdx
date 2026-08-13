@@ -1,0 +1,75 @@
+---
+title: "Examples"
+description: "Prompts that show what the connection can answer."
+---
+
+You do not need to name tools or remember arguments. Describe what you want and the assistant picks the right calls. These prompts are grouped by the job they do.
+
+## Find your way around
+
+> List my NeetoPlaydash projects.
+
+> Show the last 10 runs for Spinkart Web on the main branch.
+
+> Which of last night's runs failed?
+
+The assistant starts from `ListProjects`, then filters runs by branch and status.
+
+## Triage a red run
+
+> What went wrong in the latest failed run on main?
+
+> Group the failures in this run by their error and show me the biggest cause first.
+
+> Which spec files have failing tests in this run?
+
+The second prompt is the one worth learning. It maps to `GetTopErrors`, which collapses failing tests onto the error they share - so a run with forty failures usually resolves to two or three real problems.
+
+## Dig into one test
+
+> Show me the error output for the checkout test that failed.
+
+> How many attempts did that test take, and what did each one do?
+
+> Get me the Playwright trace for that failure.
+
+Traces open in Playwright's hosted viewer, where you can step through the DOM, network calls, and console output at the moment things broke.
+
+## Tell a flake from a break
+
+> Has this test been failing recently, or is this new?
+
+> Show me this test's history over the last 30 days.
+
+> Which tests in this run are flaky rather than genuinely broken?
+
+Result history is what separates "this broke today" from "this has been red on and off for a fortnight", which usually decides whether you fix the test or the code.
+
+## Watch the trend
+
+> How has the pass rate on main moved over the last month?
+
+> Show me the daily flaky test count for the nightly runs since 15 July.
+
+> Which day in the last 30 had the worst failure rate, and how long were runs taking that day?
+
+These map to `GetProjectInsights`, which aggregates by day rather than reading individual runs. It covers the most recent three months.
+
+## Work across workspaces
+
+> Which NeetoPlaydash workspaces can you see?
+
+> List the failing runs in the acme workspace.
+
+An OAuth connection can read every workspace you approved during sign-in. An API key connection has exactly one.
+
+## Put it together
+
+> Summarize last night's run on main: how many tests failed, what were the top errors, and which of those failures are new rather than flaky?
+
+This is the prompt the whole connection exists for. It fans out across runs, top errors, and result history, and comes back with the shape of the problem rather than a wall of logs.
+
+<Note>
+  Every tool is read-only, so none of these prompts can change your workspace.
+  See [Tools](/mcp/tools) for the exact list.
+</Note>

@@ -1,0 +1,106 @@
+---
+title: "Troubleshooting"
+description: "Fix connection, authentication, and tool errors."
+---
+
+The checks depend on how you connected, so start with the section that matches.
+
+## The server does not appear in the client
+
+<AccordionGroup>
+  <Accordion title="Restart the client">
+    Most clients read their MCP configuration only at startup. Fully quit and reopen it - reloading a window is not always enough. In Claude Code, run `/mcp` to see the current state.
+  </Accordion>
+
+  <Accordion title="Check the top-level key and URL field">
+    These differ by client and are the most common mistake:
+
+    | Client | Top-level key | URL field |
+    | --- | --- | --- |
+    | Claude Code | `mcpServers` | `url` |
+    | Cursor | `mcpServers` | `url` |
+    | Gemini CLI | `mcpServers` | `httpUrl` |
+    | VS Code | `servers` | `url` |
+    | Windsurf | `mcpServers` | `serverUrl` |
+
+    Gemini CLI's `url` means SSE, so a server configured with it will not connect over HTTP. Codex uses TOML rather than JSON: `[mcp_servers.neetoplaydash]` in `~/.codex/config.toml`.
+  </Accordion>
+
+  <Accordion title="Check the endpoint">
+    It is `https://connect.neetoplaydash.com/mcp/messages` - the `/mcp/messages` path matters, and it is not your workspace subdomain. Confirm the host is reachable:
+
+    ```bash
+    curl -s https://connect.neetoplaydash.com/.well-known/oauth-protected-resource
+    ```
+
+    That returns JSON on a healthy server, without any credential.
+  </Accordion>
+
+  <Accordion title="Validate the config file">
+    A trailing comma or an unquoted key makes the whole file unreadable, and most clients fail silently rather than reporting it. Run the file through a JSON validator, or `jq . ~/.cursor/mcp.json`.
+  </Accordion>
+</AccordionGroup>
+
+## OAuth connections
+
+<AccordionGroup>
+  <Accordion title="The browser never opens">
+    Most clients trigger the sign-in when the server first challenges them, not when you save the config. Send a prompt that uses the tools, or trigger it explicitly: `/mcp` in Claude Code, `codex mcp login neetoplaydash` for Codex, `/mcp auth neetoplaydash` for Gemini CLI.
+  </Accordion>
+
+  <Accordion title="A workspace you expected is missing">
+    An OAuth connection reaches only the workspaces you approved during sign-in. Ask the assistant to run `ListWorkspaces` to see what it actually has. To change the set, revoke the connection in your client and sign in again, approving the workspaces you want.
+  </Accordion>
+
+  <Accordion title="You are asked to sign in repeatedly">
+    Refreshing the access token needs the `offline_access` scope. If your client requested only `read`, it has no refresh token and must sign in again each time the access token expires. Remove and re-add the server so it registers afresh.
+  </Accordion>
+
+  <Accordion title="You signed in as the wrong account">
+    The grant belongs to whichever NeetoPlaydash user approved it. Sign out of NeetoPlaydash in your browser, remove the server from your client, then add it again and approve as the right account.
+  </Accordion>
+</AccordionGroup>
+
+## API key connections
+
+<AccordionGroup>
+  <Accordion title="401, invalid_token, or &quot;Missing authentication token&quot;">
+    The header must read `Authorization: Bearer YOUR_API_KEY` - the `Bearer ` prefix included, the literal placeholder replaced. Check the key has not been revoked on your workspace's API keys screen, and that you copied it whole.
+  </Accordion>
+
+  <Accordion title="The tools work but return another workspace's data">
+    An API key belongs to exactly one workspace, and that is the only one it reads. Generate a key in the workspace you meant, or connect with OAuth, which can span the workspaces you approve.
+  </Accordion>
+
+  <Accordion title="Codex reports no credential">
+    `bearer_token_env_var` takes the **name** of an environment variable, not the key. Set `NEETOPLAYDASH_API_KEY` in the environment Codex runs in, and leave the config naming the variable.
+  </Accordion>
+</AccordionGroup>
+
+## Tool errors
+
+<AccordionGroup>
+  <Accordion title="A test entity id is refused">
+    An id must name an entity the given run recorded. One that ran only in other runs is refused rather than returned with a placeholder status. Ask the assistant to list the run's test entities first.
+  </Accordion>
+
+  <Accordion title="&quot;Unknown value&quot; on kind or status">
+    `kind` accepts exactly `spec` or `test`. `status` on `ListRuns` accepts exactly one of `running`, `passed`, `failed`, `passing`, `failing`, `timedOut`, `interrupted`; on `ListTestEntities` it takes a comma-separated list drawn from `passed`, `failed`, `interrupted`, `timed_out`, `skipped`, `not_run`, `flaky`, `passing`, `failing`, `running`, `pending`. A different case is refused rather than coerced.
+  </Accordion>
+
+  <Accordion title="A run returns no test entities">
+    A run that reported no test attempts is still listed and still carries its commit, branch, and status, but it has no entities and its `run_statistics` is empty. That is the run, not the connection.
+  </Accordion>
+
+  <Accordion title="A trace or artifact link no longer works">
+    Those URLs are time-limited. Ask for them again when you are about to open them rather than reusing an old response.
+  </Accordion>
+
+  <Accordion title="Windsurf reports too many tools">
+    Cascade allows up to 100 tools across every connected server. Turn off servers you are not using.
+  </Accordion>
+</AccordionGroup>
+
+## Still stuck?
+
+Contact [support@neetoplaydash.com](mailto:support@neetoplaydash.com) or visit the [help center](https://help.neetoplaydash.com). Include which client you are using, whether you connected with OAuth or an API key, and the exact error text.

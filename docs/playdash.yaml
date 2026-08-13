@@ -15,6 +15,8 @@ servers:
 tags:
   - name: Projects
     description: APIs to list projects in the workspace.
+  - name: Insights
+    description: APIs to fetch a project's aggregated run and test insights over a date range.
   - name: Runs
     description: APIs to list runs and fetch a run with its specs.
   - name: Test Entities
@@ -46,6 +48,104 @@ paths:
             application/json:
               schema:
                 $ref: "../schemas/project.yaml#/components/schemas/project_list_response"
+
+  /projects/{project_id}/insights:
+    get:
+      summary: Get project insights
+      operationId: getProjectInsights
+      tags:
+        - Insights
+      description: |
+        Get a project's aggregated run and test insights over a date range, bucketed by day.
+
+        Insights cover the most recent 3 months. A `start_date` older than that is refused with a
+        400 rather than clamped, while an `end_date` in the future is clamped to today. Omitting
+        both returns the last 30 days.
+
+        A day on which the project recorded nothing is still present in the response, carrying only
+        its `date`.
+      parameters:
+        - $ref: "../schemas/common.yaml#/api_key_header"
+        - $ref: "../schemas/common.yaml#/accept_header"
+        - $ref: "../schemas/common.yaml#/project_id_param"
+        - in: query
+          name: start_date
+          description: Start of the range as an ISO date. Defaults to 29 days before the end date. Must fall within the most recent 3 months.
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2026-07-15"
+        - in: query
+          name: end_date
+          description: End of the range as an ISO date. Defaults to today. A date in the future is clamped to today.
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2026-08-13"
+        - in: query
+          name: branch
+          description: Count only runs on this branch.
+          required: false
+          schema:
+            type: string
+            example: "main"
+        - in: query
+          name: author
+          description: Count only runs by this author.
+          required: false
+          schema:
+            type: string
+            example: "Oliver Smith"
+        - in: query
+          name: tags
+          description: Count only runs carrying every listed tag. Accepts a comma-separated list.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["nightly", "smoke"]
+        - in: query
+          name: timezone
+          description: IANA timezone used to bucket days and resolve the date defaults. Defaults to `Etc/UTC`.
+          required: false
+          schema:
+            type: string
+            example: "America/New_York"
+      responses:
+        "200":
+          description: OK - Request succeeded. The response reports the effective `start_date` and `end_date` after clamping.
+          content:
+            application/json:
+              schema:
+                $ref: "../schemas/insight.yaml#/components/schemas/insight_response"
+        "400":
+          description: Bad request - The date range or timezone could not be used.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A human-readable error message.
+              examples:
+                beyond_lookback:
+                  summary: Start date older than the 3 month window
+                  value:
+                    error: "Insights are available only for the most recent 3 months. Use a date range starting on or after 2026-05-13."
+                invalid_date_range:
+                  summary: Unparseable date, or a start after the end
+                  value:
+                    error: "Invalid date range format"
+                invalid_timezone:
+                  summary: Unrecognised timezone
+                  value:
+                    error: "Unrecognised timezone: 'Mars/Olympus'. Use a valid IANA timezone name such as 'America/New_York'."
 
   /projects/{project_id}/runs:
     get:

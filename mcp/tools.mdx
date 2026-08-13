@@ -1,0 +1,59 @@
+---
+title: "Tools"
+description: "Every tool the NeetoPlaydash MCP server exposes."
+---
+
+The server exposes ten tools. All of them are reads - none creates, changes, or deletes anything.
+
+You do not need to call these by name. Describe what you want and the assistant picks; the list is here so you know what is reachable.
+
+## Projects and runs
+
+| Tool | What it does | API reference |
+| --- | --- | --- |
+| `ListProjects` | Lists the workspace's projects with their id, name, and archived flag. | [List projects](/api-reference/projects/list) |
+| `ListRuns` | Lists a project's runs, newest first, filterable by `branch` and `status`. Returns commit details, author, tags, duration, and aggregate statistics. | [List runs](/api-reference/runs/list) |
+| `GetRun` | Reads one run: commit details, branch, author, tags, status, duration, shard count, and aggregate statistics. | [Get a run](/api-reference/runs/get) |
+| `GetProjectInsights` | Aggregates a project's runs and test results by day over a date range, with overall totals. Narrows to a `branch`, an `author`, or runs carrying every given tag. | [Get project insights](/api-reference/insights/get) |
+
+## Tests
+
+| Tool | What it does | API reference |
+| --- | --- | --- |
+| `ListTestEntities` | Lists a run's specs or tests, chosen with `kind`, filterable by `status`. Returns each entity's id, title, status, duration, start time, and test count. | [List test entities](/api-reference/test-entities/list) |
+| `GetTestEntity` | Reads one entity. For a test: its outcomes, the attempts inside each, the Playwright error output, and links to captured artifacts. For a spec: the tests the run recorded in that file. | [Get a test entity](/api-reference/test-entities/get) |
+
+## Failures and history
+
+| Tool | What it does | API reference |
+| --- | --- | --- |
+| `GetTopErrors` | Groups a run's failing tests by their shared error log, ordered by how many tests each error affected. Returns at most 20 groups. | [List top errors](/api-reference/top-errors/list) |
+| `GetResultHistories` | Reports how one test entity behaved across earlier runs in a look-back window, with the commit and branch of each run. | [List result histories](/api-reference/result-histories/list) |
+| `GetTraces` | Returns Playwright trace viewer links for a run, or for one test entity. | [List traces](/api-reference/traces/list) |
+
+## Workspaces
+
+| Tool | What it does |
+| --- | --- |
+| `ListWorkspaces` | Lists the workspaces this connection may read. Use the subdomain it returns as the `workspace` argument on any other tool. |
+
+`ListWorkspaces` has no API equivalent - the REST API is always scoped to the single workspace in the request URL.
+
+## Arguments every tool accepts
+
+| Argument | Meaning |
+| --- | --- |
+| `workspace` | Subdomain of the workspace to run against. Defaults to the primary connected workspace. |
+
+Tools that return lists also take `page` and `page_size`. `GetProjectInsights` is not paginated; it takes `start_date`, `end_date`, and `timezone` instead, covers the most recent 3 months, and refuses an older `start_date` rather than clamping it. Identifiers are the short alphanumeric segments of a NeetoPlaydash admin URL: in `https://acme.neetoplaydash.com/admin/projects/pdqmxlz/runs/kftwnab/test_entities/vhrscje`, `pdqmxlz` is the `project_id`, `kftwnab` the `run_id`, and `vhrscje` the `test_entity_id`.
+
+## Response format
+
+Every tool returns the same payload twice: as TOON in the text content and as JSON in `structuredContent`. TOON is a compact tabular encoding - a header such as `projects[3]{id,name,archived}:` means the next three lines are comma-separated rows with those fields in that order. Both carry identical data; read whichever your client exposes.
+
+<Warning>
+  Artifact and trace URLs are time-limited links to files stored by
+  NeetoPlaydash. Opening a trace link sends that URL to Playwright's hosted
+  viewer at `trace.playwright.dev`, which is operated by Microsoft, not by
+  NeetoPlaydash.
+</Warning>

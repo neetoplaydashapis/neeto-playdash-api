@@ -1,0 +1,88 @@
+---
+title: "Output formats"
+description: "Switch between pretty tables, JSON, raw payloads, and token-efficient TOON."
+---
+
+Every command supports four output formats, selected with a global flag. On a TTY the default is pretty output; everywhere else it is the JSON envelope.
+
+| Flag | Format | Use it for |
+| --- | --- | --- |
+| _(none)_ | Pretty tables and key-value blocks | Reading in a terminal |
+| `--json` | JSON envelope | Piping to `jq` or another tool |
+| `--quiet` | Raw payload, no envelope | Shell scripts |
+| `--toon` | TOON, a compact tabular encoding | Feeding output back to an AI assistant |
+
+When more than one is set, precedence is `--toon` > `--quiet` > `--json` > pretty.
+
+## Pretty
+
+The default on a terminal. Lists render as tables, single resources as key-value blocks, and both end with breadcrumbs naming the next command to run.
+
+```bash
+neetoplaydash projects list
+```
+
+Tables pick their columns to fit a terminal, so the set of columns depends on the payload. Treat pretty output as something to read, not something to parse - use `--json` or `--toon` for anything downstream.
+
+## JSON envelope
+
+```bash
+neetoplaydash projects list --json
+```
+
+```json
+{
+  "data": [
+    { "id": "pdqmxlz", "name": "Spinkart Web", "archived": false }
+  ],
+  "breadcrumbs": [
+    { "label": "List runs", "command": "neetoplaydash runs list <project_id>" }
+  ],
+  "pagination": {
+    "total_records": 42,
+    "total_pages": 3,
+    "current_page_number": 1,
+    "page_size": 15
+  }
+}
+```
+
+`breadcrumbs` is omitted when empty. `pagination` is present only on list commands.
+
+## Quiet
+
+```bash
+neetoplaydash projects list --quiet
+```
+
+Prints the contents of `data` and nothing else - no envelope, no breadcrumbs, no pagination. This is the format to use in shell scripts.
+
+## TOON
+
+```bash
+neetoplaydash projects list --toon
+```
+
+TOON (Token Optimized Output Notation) carries the same data as JSON, re-encoded so that a repeated array is written once as a header naming its fields, followed by one comma-separated row per record. On list commands that is roughly 30-60% fewer tokens than JSON, which matters when the output is going back into an AI assistant's context.
+
+Read it as the JSON it stands for: a header such as `projects[3]{id,name,archived}:` means the next three lines are rows with those fields in that order.
+
+## Pagination
+
+List commands accept `--page` (1-indexed) and `--page-size`. The envelope's `pagination` object always reports `total_records`, `total_pages`, `current_page_number`, and `page_size`, so a script can loop by incrementing `--page` until `current_page_number` equals `total_pages`.
+
+Defaults and caps differ by command, and a `--page-size` above the cap is silently clamped to it. Read `pagination.page_size` in the response to see what you actually got.
+
+| Command | Default | Maximum |
+| --- | --- | --- |
+| `projects list` | 15 | 50 |
+| `runs list` | 15 | 50 |
+| `test-entities list` | 25 | 100 |
+
+`result-histories list`, `traces list`, and `top-errors list` are not paginated. Their responses are bounded by the look-back window, the run, and a cap of 20 error groups respectively.
+
+<Tip>
+  Filter on the server rather than fetching everything and filtering afterwards.
+  `--status`, `--branch`, `--kind`, and `--test-entity-id` all narrow the
+  response before it is sent.
+</Tip>

@@ -1,0 +1,70 @@
+---
+title: "NeetoPlaydash CLI"
+description: "Inspect Playwright runs, failing tests, and traces from your terminal."
+---
+
+The **NeetoPlaydash CLI** (`neetoplaydash`) reads your Playwright test results from the terminal. It covers the [external REST API](/getting-started/introduction): list projects and runs, drill into the specs and tests a run recorded, group a run's failures by their shared error, pull a test's history across earlier runs, and fetch Playwright trace viewer links.
+
+The CLI is read-only. It reports what a run recorded; it never changes or deletes anything in your workspace.
+
+It is designed for people comfortable with a terminal. You do not need to be a developer: run `neetoplaydash setup` to connect an AI assistant such as Claude Code or Cursor, then describe the task in plain language.
+
+## Why use the CLI?
+
+<CardGroup cols={2}>
+  <Card title="Triage from the terminal" icon="magnifying-glass">
+    Filter a project's runs by branch and status, then drill straight into the failing specs without clicking through the dashboard.
+  </Card>
+  <Card title="Group failures by cause" icon="layer-group">
+    `top-errors` collapses a run's failing tests onto their shared error log, so one broken selector reads as one problem rather than forty.
+  </Card>
+  <Card title="Separate flakes from breaks" icon="clock-rotate-left">
+    Pull a test's result history across recent runs to tell a brand-new failure from a long-standing flake.
+  </Card>
+  <Card title="Watch the trend" icon="chart-line">
+    `insights` aggregates runs and test results by day, so you can see whether the suite is improving or drifting.
+  </Card>
+  <Card title="Built for AI agents" icon="robot">
+    Token-efficient `--toon` output and one-command setup for Claude Code, Cursor, Copilot, and more.
+  </Card>
+</CardGroup>
+
+## What you need
+
+1. Access to one or more NeetoPlaydash workspaces.
+2. A NeetoPlaydash account with permission to view projects and test runs in those workspaces.
+3. The `neetoplaydash` binary. See [Installation](/cli/installation).
+
+<Note>
+  Unlike the API, which authenticates with an `X-Api-Key` header, the CLI signs
+  you in through your browser and stores credentials locally. See
+  [Authentication](/cli/authentication).
+</Note>
+
+## How the resources nest
+
+Every command below the top level takes the identifiers of the resources above it:
+
+```
+project ─┬─ insights
+         └─ run ─┬─ test entity ─── result history
+                 ├─ top errors
+                 └─ traces
+```
+
+`traces` and `top-errors` hang off the run, not off a test entity: `traces list` optionally narrows to one entity with `--test-entity-id`, and `top-errors list` reports across the whole run. `insights` sits beside runs rather than under one, because it aggregates across many of them.
+
+## How ids are passed
+
+A command takes the id of the resource it acts on as its **positional argument**, and names the ids of the resources containing it as **flags**:
+
+```bash
+neetoplaydash top-errors list kftwnab --project pdqmxlz
+neetoplaydash test-entities get vhrscje --project pdqmxlz --run kftwnab
+```
+
+Every NeetoPlaydash id is a short alphanumeric string, so a row of bare positionals would give you no way to tell a project from a run. `--project` and `--run` are required wherever they apply, and getting one wrong is a flag error rather than a confusing 404.
+
+`projects list` needs no id at all, and `insights get` and `runs list` take only a project, so those keep a single positional.
+
+`projects list` is the entry point. Each response ends with breadcrumbs naming the exact next command to run, so you rarely need to assemble an identifier by hand.

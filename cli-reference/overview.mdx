@@ -1,0 +1,134 @@
+---
+title: "Commands overview"
+description: "Every neetoplaydash command grouped by resource, with links to the full reference."
+---
+
+## Global flags
+
+These flags work on every command and are left out of the per-command flag tables below. See [Output formats](/cli/output-formats) for details.
+
+| Flag | Description |
+| --- | --- |
+| `--json` | Output as JSON |
+| `--quiet` | Output raw data only (no envelope) |
+| `--toon` | Output in TOON format (token-optimized for AI agents) |
+| `--subdomain` | Override saved subdomain |
+
+### doctor
+
+Check CLI health and connectivity
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash doctor`](/cli-reference/utility) | Check CLI health and connectivity |
+
+### insights
+
+View a project's testing insights over a date range
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash insights get`](/cli-reference/insights) | Show a project's daily and overall run and test insights |
+
+### login
+
+Authenticate to NeetoPlaydash via browser
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash login`](/cli-reference/utility) | Authenticate to NeetoPlaydash via browser |
+
+### logout
+
+Sign out and clear saved credentials
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash logout`](/cli-reference/utility) | Sign out and clear saved credentials |
+
+### projects
+
+Manage projects
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash projects list`](/cli-reference/projects) | List projects in the workspace |
+
+### result-histories
+
+View a test entity's result history across runs
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash result-histories list`](/cli-reference/result-histories) | List result history for a test entity |
+
+### runs
+
+Manage runs
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash runs get`](/cli-reference/runs) | Show a run with summary, statistics, and specs |
+| [`neetoplaydash runs list`](/cli-reference/runs) | List runs for a project |
+
+### setup
+
+Set up NeetoPlaydash for AI coding assistants
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash setup claude`](/cli-reference/utility) | Register NeetoPlaydash plugin with Claude Code |
+| [`neetoplaydash setup codex`](/cli-reference/utility) | Add NeetoPlaydash instructions for OpenAI Codex |
+| [`neetoplaydash setup copilot`](/cli-reference/utility) | Add NeetoPlaydash instructions for GitHub Copilot |
+| [`neetoplaydash setup cursor`](/cli-reference/utility) | Write NeetoPlaydash rules for Cursor IDE |
+| [`neetoplaydash setup gemini`](/cli-reference/utility) | Add NeetoPlaydash instructions for Gemini CLI |
+| [`neetoplaydash setup windsurf`](/cli-reference/utility) | Write NeetoPlaydash rules for Windsurf IDE |
+
+### test-entities
+
+Manage test entities (specs and tests)
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash test-entities get`](/cli-reference/test-entities) | Show a test entity with outcomes and attempts |
+| [`neetoplaydash test-entities list`](/cli-reference/test-entities) | List test entities for a run |
+
+### top-errors
+
+Get a run's top errors with failing tests grouped by shared error log
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash top-errors list`](/cli-reference/top-errors) | List a run's top errors, ordered by the number of affected tests |
+
+### traces
+
+Get Playwright trace viewer URLs for a run
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash traces list`](/cli-reference/traces) | List Playwright trace viewer URLs for a run |
+
+### update
+
+Update the CLI to the latest version
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash update`](/cli-reference/utility) | Update the CLI to the latest version |
+
+### version
+
+Print the CLI version
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash version`](/cli-reference/utility) | Print the CLI version |
+
+### whoami
+
+Show current authenticated user(s)
+
+| Command | Description |
+| --- | --- |
+| [`neetoplaydash whoami`](/cli-reference/utility) | Show current authenticated user(s) |

@@ -1,0 +1,115 @@
+---
+title: "insights"
+description: "Read a project's run and test trends over a date range."
+---
+
+import InsightsGetFlags from '/snippets/cli/insights/get.mdx'
+
+Where `runs` and `test-entities` tell you about one execution, `insights` aggregates across many: how many runs passed each day, how long they took, and how the test results split between passed, failed, skipped, flaky, and timed out. It answers "is this suite getting better or worse?" rather than "what broke last night?".
+
+For fields and response details, see the [API reference](/api-reference/insights/get).
+
+<Note>
+  Sample output on this page uses `--json`. The pretty format for this command
+  is a summary line plus a per-day table for each section, because the generic
+  printer would collapse the nested payload. See [Output formats](/cli/output-formats).
+</Note>
+
+## insights get
+
+Shows the project's daily and overall run and test insights for a date range.
+
+### Required arguments
+
+- `<project_id>` - the project to report on, from [`projects list`](/cli-reference/projects).
+
+```bash
+neetoplaydash insights get pdqmxlz --start-date 2026-07-15 --branch main
+```
+
+<InsightsGetFlags />
+
+### The date range
+
+Omit both dates and you get the last 30 days. Otherwise:
+
+- `--start-date` must fall within the most recent **3 months**. An older date is **refused**, not clamped - the command exits non-zero with the earliest date you may use.
+- `--end-date` in the future is clamped to today.
+- `--timezone` decides where a day starts and ends, and resolves the defaults. It takes an IANA name and defaults to `Etc/UTC`.
+
+The response always reports the `start_date` and `end_date` actually used, so you can tell when clamping happened.
+
+### Filters
+
+`--branch`, `--author`, and `--tags` narrow which runs are counted, and the test figures follow the same runs. `--tags` is a comma-separated list and matches runs carrying **every** tag listed, not any of them.
+
+```bash
+neetoplaydash insights get pdqmxlz --tags nightly,smoke --timezone America/New_York
+```
+
+```json Sample output
+{
+  "data": {
+    "start_date": "2026-07-15",
+    "end_date": "2026-08-13",
+    "timezone": "America/New_York",
+    "runs": {
+      "runs_volume_data": [
+        {
+          "date": "Aug 13, 2026",
+          "passed_runs_count": 24,
+          "failed_runs_count": 3,
+          "average_passing_rate": 88.89,
+          "average_run_duration": 182450.0
+        },
+        { "date": "Aug 12, 2026" }
+      ],
+      "overall_data": {
+        "passed_runs_count": 612,
+        "failed_runs_count": 88,
+        "average_passing_rate": 87.43,
+        "average_run_duration": 176320.5
+      }
+    },
+    "tests": {
+      "tests_volume_data": [
+        {
+          "date": "Aug 13, 2026",
+          "passed_tests_count": 1840,
+          "failed_tests_count": 26,
+          "skipped_tests_count": 12,
+          "flaky_tests_count": 9,
+          "timed_out_tests_count": 4,
+          "pass_percentage": 97.72,
+          "fail_percentage": 1.38,
+          "skip_percentage": 0.64,
+          "flaky_percentage": 0.48,
+          "timed_out_percentage": 0.21,
+          "average_passing_rate": 97.72,
+          "average_flakiness_rate": 0.48
+        }
+      ],
+      "overall_data": {
+        "passed_tests_count": 48210,
+        "failed_tests_count": 702,
+        "skipped_tests_count": 318,
+        "flaky_tests_count": 241,
+        "timed_out_tests_count": 96,
+        "average_passing_rate": 97.71,
+        "average_flakiness_rate": 0.49
+      }
+    }
+  },
+  "breadcrumbs": [
+    { "label": "List runs", "command": "neetoplaydash runs list <project_id>" }
+  ]
+}
+```
+
+### Reading the payload
+
+- **A quiet day keeps only its `date`.** `Aug 12, 2026` above recorded nothing, so every count is absent rather than zero. In pretty output those cells render as `-`.
+- **Durations are milliseconds.** Pretty output formats them (`3.0s`, `2m 56s`); the JSON does not.
+- **Rates are percentages**, already multiplied by 100.
+- **`passed_tests_count` includes flaky tests** - a test that failed and then passed on a retry counts in both `passed_tests_count` and `flaky_tests_count`.
+- **`average_passing_rate` and `pass_percentage` are the same number** on a test day entry, as are `average_flakiness_rate` and `flaky_percentage`. The pair exists so the tests section reads the same way as the runs section.

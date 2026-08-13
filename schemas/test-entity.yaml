@@ -56,6 +56,11 @@ components:
           nullable: true
           description: Duration of the attempt in seconds.
           example: 3.02
+        log:
+          type: string
+          nullable: true
+          description: Playwright's error output for this attempt. Null when the attempt produced none.
+          example: "TimeoutError: locator.click: Timeout 10000ms exceeded."
         screenshots:
           type: array
           description: URLs of screenshots captured during the attempt.
@@ -109,6 +114,22 @@ components:
           items:
             $ref: '#/components/schemas/attempt'
 
+    contained_test:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test.
+          example: "vhrscje"
+        title:
+          type: string
+          description: Title of the test.
+          example: "adds an item to the cart"
+        status:
+          type: string
+          description: Status the run recorded for this test.
+          example: "passed"
+
     # Test entity detail (show) response structure
     test_entity_detail_response:
       type: object
@@ -129,5 +150,15 @@ components:
           example: "passed"
         outcomes:
           type: array
+          description: >-
+            Outcomes recorded for this entity in the run. Always empty for a spec, which
+            takes no attempts of its own.
           items:
             $ref: '#/components/schemas/outcome'
+        tests:
+          type: array
+          description: >-
+            Tests the run recorded inside this entity. Always empty for a test, which
+            contains none.
+          items:
+            $ref: '#/components/schemas/contained_test'

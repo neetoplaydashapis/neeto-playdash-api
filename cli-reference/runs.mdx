@@ -1,0 +1,142 @@
+---
+title: "runs"
+description: "List a project's test runs and read one in full."
+---
+
+import RunsListFlags from '/snippets/cli/runs/list.mdx'
+import RunsGetFlags from '/snippets/cli/runs/get.mdx'
+
+A run is one execution of a project's Playwright suite, reported by CI. Runs carry the commit, branch, author, tags, and status, plus the aggregate pass/fail counts.
+
+For fields and response details, see the [API reference](/api-reference/runs/list).
+
+<Note>
+  Sample output on this page uses `--json`. Pretty tables pick their columns
+  from the payload and the terminal width, so they are not reproducible; the
+  JSON envelope is. See [Output formats](/cli/output-formats).
+</Note>
+
+## runs list
+
+Lists the runs recorded for a project, newest first. This is the usual starting point for triage: filter to the branch you care about and the status you are chasing.
+
+### Required arguments
+
+- `<project_id>` - the project whose runs to list, from [`projects list`](/cli-reference/projects).
+
+```bash
+neetoplaydash runs list pdqmxlz --branch main --status failed
+```
+
+<RunsListFlags />
+
+`--status` takes exactly one of `running`, `passed`, `failed`, `passing`, `failing`, `timedOut`, `interrupted`.
+
+<Warning>
+  The `--page-size` help text says 100, but the server caps this endpoint at
+  **50** and silently clamps anything larger. Check `pagination.page_size` in
+  the response for the size actually applied.
+</Warning>
+
+```json Sample output
+{
+  "data": [
+    {
+      "id": "kftwnab",
+      "commit_id": "9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5",
+      "created_at": "2026-06-28T09:14:22.000Z",
+      "commit_name": "Fix flaky checkout spec",
+      "status": "failed",
+      "duration": 182.45,
+      "ci_build_id": "gh-actions-4821",
+      "branch": "main",
+      "author": "Oliver Smith",
+      "tags": ["smoke", "nightly"],
+      "is_running": false,
+      "run_statistics": [
+        { "name": "Passed", "value": 38 },
+        { "name": "Failed", "value": 2 },
+        { "name": "Flaky", "value": 1 }
+      ]
+    }
+  ],
+  "breadcrumbs": [
+    { "label": "Show run", "command": "neetoplaydash runs get <run_id> --project <project_id>" },
+    { "label": "List test entities", "command": "neetoplaydash test-entities list <run_id> --project <project_id>" }
+  ],
+  "pagination": {
+    "total_records": 42,
+    "total_pages": 3,
+    "current_page_number": 1,
+    "page_size": 15
+  }
+}
+```
+
+Every run the project holds is listed, including one that reported no test attempts at all. Such a run still carries its commit, branch, and status, but its `run_statistics` is empty and `test-entities list` reports nothing for it.
+
+## runs get
+
+Shows one run with its summary, aggregate statistics, and the spec files it executed, each with the tests grouped under it. Use it when you want the shape of a whole run in a single call rather than paging through its test entities.
+
+### Required arguments
+
+- `<run_id>` - the run to show, from [`runs list`](#runs-list).
+- `--project <project_id>` - the project the run belongs to.
+
+```bash
+neetoplaydash runs get kftwnab --project pdqmxlz
+```
+
+<RunsGetFlags />
+
+```json Sample output
+{
+  "data": {
+    "project_id": "pdqmxlz",
+    "run_id": "kftwnab",
+    "commit_id": "9fceb02e1d2c4bb6a1f3f6b0c8e7d5a1b2c3d4e5",
+    "created_at": "2026-06-28T09:14:22.000Z",
+    "commit_name": "Fix flaky checkout spec",
+    "status": "failed",
+    "duration": 182.45,
+    "ci_build_id": "gh-actions-4821",
+    "branch": "main",
+    "author": "Oliver Smith",
+    "tags": ["smoke", "nightly"],
+    "is_running": false,
+    "total_shards": 4,
+    "run_statistics": [
+      { "name": "Passed", "value": 38 },
+      { "name": "Failed", "value": 2 }
+    ],
+    "specs": [
+      {
+        "spec_id": "wbnxtyz",
+        "file_name": "cart.spec.ts",
+        "tests": [
+          {
+            "test_id": "vhrscje",
+            "title": "adds an item to the cart",
+            "status": "passed",
+            "duration": 3.21
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "total_records": 12,
+      "total_pages": 1,
+      "current_page_number": 1,
+      "page_size": 15
+    }
+  },
+  "breadcrumbs": [
+    { "label": "List test entities", "command": "neetoplaydash test-entities list <run_id> --project <project_id>" }
+  ]
+}
+```
+
+The `specs` list is paginated, and its `pagination` object sits inside `data` alongside it.
+
+See the [API reference](/api-reference/runs/get) for the full response.

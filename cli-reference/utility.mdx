@@ -1,0 +1,175 @@
+---
+title: "Utility commands"
+description: "Authentication, diagnostics, updates, AI-assistant setup, and shell completion."
+---
+
+import LogoutFlags from '/snippets/cli/logout.mdx'
+
+These commands manage the CLI itself rather than a NeetoPlaydash resource.
+
+## Authentication
+
+### login
+
+```bash
+neetoplaydash login --subdomain your-workspace
+```
+
+Opens your browser to sign in and saves credentials for the workspace. Omit `--subdomain` to be prompted. See [Authentication](/cli/authentication).
+
+```text Sample output
+Authenticated as oliver.smith@example.com on acme.neetoplaydash.com.
+```
+
+### logout
+
+```bash
+neetoplaydash logout --subdomain your-workspace
+neetoplaydash logout --all
+```
+
+With exactly one workspace signed in, `neetoplaydash logout` on its own removes it. With several, pass `--subdomain` or `--all`.
+
+<LogoutFlags />
+
+```text Sample output
+Signed out of acme.neetoplaydash.com.
+```
+
+### whoami
+
+```bash
+neetoplaydash whoami
+```
+
+Lists each signed-in account and marks it `(default)` when only one is signed in. Pass `--subdomain <name>` to show one workspace.
+
+```text Sample output
+Authenticated as oliver.smith@example.com on acme.neetoplaydash.com (default).
+```
+
+## Diagnostics
+
+### doctor
+
+```bash
+neetoplaydash doctor
+```
+
+Checks authentication, API reachability, and the CLI version. Each check runs independently, so one failure does not hide the next. When several workspaces are signed in, pass `--subdomain <name>`. See [Troubleshooting](/cli/troubleshooting).
+
+```text Sample output
+✓ Authentication: authenticated as oliver.smith@example.com on acme.neetoplaydash.com
+✓ API connection: https://acme.neetoplaydash.com (responding in 214ms)
+✓ CLI version: 1.0.9
+```
+
+### version
+
+```bash
+neetoplaydash version
+```
+
+Prints the CLI version, commit hash, and build date.
+
+```text Sample output
+neetoplaydash 1.0.9 (commit: a1b2c3d, built: 2026-08-05)
+```
+
+### commands
+
+```bash
+neetoplaydash commands
+```
+
+Prints the complete command and flag catalog for the installed version as JSON. It is useful in scripts and with AI assistants, and it is the source this reference is generated from.
+
+```json Sample output
+[
+  {
+    "command": "neetoplaydash runs",
+    "description": "Manage runs",
+    "subcommands": [
+      {
+        "command": "neetoplaydash runs list",
+        "description": "List runs for a project",
+        "flags": [
+          { "name": "branch", "type": "string", "description": "Filter runs by branch name" }
+        ]
+      }
+    ]
+  }
+]
+```
+
+## Updating
+
+### update
+
+```bash
+neetoplaydash update
+```
+
+Detects how the CLI was installed and runs the matching upgrade: `brew update && brew upgrade` for a Homebrew install, and the install script otherwise. See [Installation](/cli/installation).
+
+```text Sample output
+Detected Homebrew install.
+Running: brew update && brew upgrade neetozone/homebrew-tap/neetoplaydash
+```
+
+## AI-assistant setup
+
+Add NeetoPlaydash instructions to your AI coding assistant. See [AI assistants](/cli/ai-assistants) for what each command writes and where.
+
+```bash
+neetoplaydash setup claude
+neetoplaydash setup cursor
+neetoplaydash setup windsurf
+neetoplaydash setup copilot
+neetoplaydash setup gemini
+neetoplaydash setup codex
+```
+
+```text Sample output
+NeetoPlaydash plugin extracted to /Users/oliver/.config/neetoplaydash/claude-plugin
+
+To finish installation, open Claude Code and run these slash commands:
+  /plugin marketplace add /Users/oliver/.config/neetoplaydash/claude-plugin
+  /plugin install neetoplaydash@neetoplaydash
+
+(Claude Code installs plugins via interactive slash commands - there is no shell equivalent today.)
+```
+
+## Shell completion
+
+Shell completion fills in command names, subcommands, and flags when you press `Tab`. It saves you from having to remember the full command tree or look up `--help`.
+
+`neetoplaydash completion <shell>` installs completion for your shell. It writes a script under `~/.config/neetoplaydash/completions` and configures your shell to load it the next time it starts.
+
+<CodeGroup>
+```bash Zsh
+neetoplaydash completion zsh
+```
+
+```bash Bash
+neetoplaydash completion bash
+```
+
+```bash Fish
+neetoplaydash completion fish
+```
+
+```powershell PowerShell
+neetoplaydash completion powershell
+```
+</CodeGroup>
+
+Start a new shell (or run `source ~/.zshrc`) to enable it. After upgrading the CLI, run the command again to update the available completions. Re-running it replaces the existing script and configuration without adding duplicates.
+
+<Note>
+  To configure it yourself, pass `--print` to write the raw script to standard output instead of installing it:
+
+  ```bash
+  neetoplaydash completion zsh --print
+  ```
+</Note>

@@ -13,6 +13,8 @@ servers:
 tags:
   - name: Projects
     description: APIs to list projects in the workspace.
+  - name: Insights
+    description: APIs to fetch a project's aggregated run and test insights over a date range.
   - name: Runs
     description: APIs to list runs and fetch a run with its specs.
   - name: Test Entities
@@ -43,6 +45,105 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/project_list_response'
+  /projects/{project_id}/insights:
+    get:
+      summary: Get project insights
+      operationId: getProjectInsights
+      tags:
+        - Insights
+      description: |
+        Get a project's aggregated run and test insights over a date range, bucketed by day.
+
+        Insights cover the most recent 3 months. A `start_date` older than that is refused with a
+        400 rather than clamped, while an `end_date` in the future is clamped to today. Omitting
+        both returns the last 30 days.
+
+        A day on which the project recorded nothing is still present in the response, carrying only
+        its `date`.
+      parameters:
+        - $ref: '#/components/parameters/api_key_header'
+        - $ref: '#/components/parameters/accept_header'
+        - $ref: '#/components/parameters/project_id_param'
+        - in: query
+          name: start_date
+          description: Start of the range as an ISO date. Defaults to 29 days before the end date. Must fall within the most recent 3 months.
+          required: false
+          schema:
+            type: string
+            format: date
+            example: '2026-07-15'
+        - in: query
+          name: end_date
+          description: End of the range as an ISO date. Defaults to today. A date in the future is clamped to today.
+          required: false
+          schema:
+            type: string
+            format: date
+            example: '2026-08-13'
+        - in: query
+          name: branch
+          description: Count only runs on this branch.
+          required: false
+          schema:
+            type: string
+            example: main
+        - in: query
+          name: author
+          description: Count only runs by this author.
+          required: false
+          schema:
+            type: string
+            example: Oliver Smith
+        - in: query
+          name: tags
+          description: Count only runs carrying every listed tag. Accepts a comma-separated list.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+            example:
+              - nightly
+              - smoke
+        - in: query
+          name: timezone
+          description: IANA timezone used to bucket days and resolve the date defaults. Defaults to `Etc/UTC`.
+          required: false
+          schema:
+            type: string
+            example: America/New_York
+      responses:
+        '200':
+          description: OK - Request succeeded. The response reports the effective `start_date` and `end_date` after clamping.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insight_response'
+        '400':
+          description: Bad request - The date range or timezone could not be used.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: A human-readable error message.
+              examples:
+                beyond_lookback:
+                  summary: Start date older than the 3 month window
+                  value:
+                    error: Insights are available only for the most recent 3 months. Use a date range starting on or after 2026-05-13.
+                invalid_date_range:
+                  summary: Unparseable date, or a start after the end
+                  value:
+                    error: Invalid date range format
+                invalid_timezone:
+                  summary: Unrecognised timezone
+                  value:
+                    error: 'Unrecognised timezone: ''Mars/Olympus''. Use a valid IANA timezone name such as ''America/New_York''.'
   /projects/{project_id}/runs:
     get:
       summary: List runs
@@ -374,6 +475,177 @@ components:
             $ref: '#/components/schemas/project'
         pagination:
           $ref: '#/components/schemas/pagination'
+    insight_runs_day:
+      type: object
+      description: Run counts for one day. Only `date` is present on a day the project recorded no passed or failed runs; every other property is omitted for that day.
+      properties:
+        date:
+          type: string
+          description: Day the counts belong to, formatted as `%b %e, %Y` in the requested timezone.
+          example: Aug 13, 2026
+        passed_runs_count:
+          type: integer
+          description: Runs that passed on this day.
+          example: 24
+        failed_runs_count:
+          type: integer
+          description: Runs that failed on this day.
+          example: 3
+        average_passing_rate:
+          type: number
+          description: Percentage of this day's runs that passed.
+          example: 88.89
+        average_run_duration:
+          type: number
+          description: Average run duration on this day, in milliseconds.
+          example: 182450
+    insight_runs_overall:
+      type: object
+      properties:
+        passed_runs_count:
+          type: integer
+          description: Runs that passed across the range.
+          example: 612
+        failed_runs_count:
+          type: integer
+          description: Runs that failed across the range.
+          example: 88
+        average_passing_rate:
+          type: number
+          description: Percentage of runs in the range that passed.
+          example: 87.43
+        average_run_duration:
+          type: number
+          description: Average run duration across the range, in milliseconds.
+          example: 176320.5
+    insight_runs:
+      type: object
+      properties:
+        runs_volume_data:
+          type: array
+          description: One entry per day in the range, oldest first.
+          items:
+            $ref: '#/components/schemas/insight_runs_day'
+        overall_data:
+          $ref: '#/components/schemas/insight_runs_overall'
+    insight_tests_day:
+      type: object
+      description: Test-result counts for one day. Only `date` is present on a day the project recorded no test results; every other property is omitted for that day.
+      properties:
+        date:
+          type: string
+          description: Day the counts belong to, formatted as `%b %e, %Y` in the requested timezone.
+          example: Aug 13, 2026
+        passed_tests_count:
+          type: integer
+          description: Tests that passed on this day, flaky ones included.
+          example: 1840
+        failed_tests_count:
+          type: integer
+          description: Tests that failed on this day.
+          example: 26
+        skipped_tests_count:
+          type: integer
+          description: Tests skipped on this day.
+          example: 12
+        flaky_tests_count:
+          type: integer
+          description: Tests that passed on a retry after failing at least once on this day.
+          example: 9
+        timed_out_tests_count:
+          type: integer
+          description: Tests that timed out on this day.
+          example: 4
+        pass_percentage:
+          type: number
+          description: Percentage of this day's test results that passed.
+          example: 97.72
+        fail_percentage:
+          type: number
+          description: Percentage of this day's test results that failed.
+          example: 1.38
+        skip_percentage:
+          type: number
+          description: Percentage of this day's test results that were skipped.
+          example: 0.64
+        flaky_percentage:
+          type: number
+          description: Percentage of this day's test results that were flaky.
+          example: 0.48
+        timed_out_percentage:
+          type: number
+          description: Percentage of this day's test results that timed out.
+          example: 0.21
+        average_passing_rate:
+          type: number
+          description: Same value as `pass_percentage`, under the name the runs section uses.
+          example: 97.72
+        average_flakiness_rate:
+          type: number
+          description: Same value as `flaky_percentage`, under the name the runs section uses.
+          example: 0.48
+    insight_tests_overall:
+      type: object
+      properties:
+        passed_tests_count:
+          type: integer
+          description: Tests that passed across the range, flaky ones included.
+          example: 48210
+        failed_tests_count:
+          type: integer
+          description: Tests that failed across the range.
+          example: 702
+        skipped_tests_count:
+          type: integer
+          description: Tests skipped across the range.
+          example: 318
+        flaky_tests_count:
+          type: integer
+          description: Tests that passed on a retry after failing at least once.
+          example: 241
+        timed_out_tests_count:
+          type: integer
+          description: Tests that timed out across the range.
+          example: 96
+        average_passing_rate:
+          type: number
+          description: Percentage of tests in the range that passed.
+          example: 97.71
+        average_flakiness_rate:
+          type: number
+          description: Percentage of tests in the range that were flaky.
+          example: 0.49
+    insight_tests:
+      type: object
+      properties:
+        tests_volume_data:
+          type: array
+          description: One entry per day in the range, oldest first.
+          items:
+            $ref: '#/components/schemas/insight_tests_day'
+        overall_data:
+          $ref: '#/components/schemas/insight_tests_overall'
+    insight_response:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          description: Effective start of the range after clamping, in the requested timezone.
+          example: '2026-07-15'
+        end_date:
+          type: string
+          format: date
+          description: Effective end of the range after clamping, in the requested timezone.
+          example: '2026-08-13'
+        timezone:
+          type: string
+          description: IANA timezone the day buckets and dates are expressed in.
+          example: Etc/UTC
+        runs:
+          $ref: '#/components/schemas/insight_runs'
+        tests:
+          $ref: '#/components/schemas/insight_tests'
     run_status:
       type: string
       description: Current status of the run.
@@ -589,6 +861,11 @@ components:
           nullable: true
           description: Duration of the attempt in seconds.
           example: 3.02
+        log:
+          type: string
+          nullable: true
+          description: Playwright's error output for this attempt. Null when the attempt produced none.
+          example: 'TimeoutError: locator.click: Timeout 10000ms exceeded.'
         screenshots:
           type: array
           description: URLs of screenshots captured during the attempt.
@@ -639,6 +916,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/attempt'
+    contained_test:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the test.
+          example: vhrscje
+        title:
+          type: string
+          description: Title of the test.
+          example: adds an item to the cart
+        status:
+          type: string
+          description: Status the run recorded for this test.
+          example: passed
     test_entity_detail_response:
       type: object
       properties:
@@ -660,8 +952,14 @@ components:
           example: passed
         outcomes:
           type: array
+          description: Outcomes recorded for this entity in the run. Always empty for a spec, which takes no attempts of its own.
           items:
             $ref: '#/components/schemas/outcome'
+        tests:
+          type: array
+          description: Tests the run recorded inside this entity. Always empty for a test, which contains none.
+          items:
+            $ref: '#/components/schemas/contained_test'
     result_history_run:
       type: object
       properties:

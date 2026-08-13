@@ -1,0 +1,64 @@
+---
+title: "NeetoPlaydash MCP"
+description: "Let an AI assistant read your Playwright runs, failures, and traces."
+---
+
+The **NeetoPlaydash MCP server** exposes your test results over the [Model Context Protocol](https://modelcontextprotocol.io), so an AI assistant can answer questions about them directly. Ask whether last night's run passed, which tests failed, whether a failure is new or a long-standing flake, and the assistant fetches the answer instead of you clicking through the dashboard.
+
+NeetoPlaydash hosts the server. There is nothing to install or run locally - you point your assistant at a URL and authenticate.
+
+## What it can do
+
+<CardGroup cols={2}>
+  <Card title="Find runs" icon="magnifying-glass">
+    List projects, and list a project's runs filtered by branch or status.
+  </Card>
+  <Card title="Inspect failures" icon="bug">
+    Read a run's specs and tests, and open one test's outcomes, attempts, and Playwright error output.
+  </Card>
+  <Card title="Group by cause" icon="layer-group">
+    Collapse a run's failing tests onto the error they share, largest cause first.
+  </Card>
+  <Card title="Tell flakes from breaks" icon="clock-rotate-left">
+    Read a test's history across earlier runs to see whether the failure is new.
+  </Card>
+  <Card title="Watch the trend" icon="chart-line">
+    Aggregate a project's runs and test results by day to see whether the suite is getting better or worse.
+  </Card>
+</CardGroup>
+
+See [Tools](/mcp/tools) for the full list.
+
+<Note>
+  The connection is **read-only**. The server requests only the `read` scope and
+  every tool it exposes is a read. An assistant can look at your projects, runs,
+  tests, and traces; it cannot change or delete anything in your workspace.
+</Note>
+
+## What you need
+
+1. An AI assistant that supports remote MCP servers. See [Connect](/mcp/connect) for the ones we cover.
+2. A way to authenticate:
+   - **OAuth** - nothing to prepare. You paste the server URL and approve the connection in your browser.
+   - **API key** - only if your client cannot do OAuth, or you want a connection that is not tied to a person. See [Authentication](/mcp/authentication).
+
+The two are not interchangeable in what they reach, so read [Authentication](/mcp/authentication) before you pick.
+
+## Server details
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://connect.neetoplaydash.com/mcp/messages` |
+| **Transport** | HTTP |
+| **Authentication** | OAuth 2.1, or an API key as a bearer token |
+| **Scopes** | `read`, `offline_access` |
+
+## How it relates to the other surfaces
+
+| | Best for |
+| --- | --- |
+| [REST API](/getting-started/introduction) | Your own code, dashboards, and integrations |
+| [CLI](/cli/introduction) | Working in a terminal, and shell scripts |
+| MCP | An AI assistant answering questions in plain language |
+
+All three read the same data from the same endpoints.

@@ -1,0 +1,68 @@
+---
+title: "Troubleshooting"
+description: "Diagnose sign-in, connectivity, and command errors."
+---
+
+Start with `doctor`. It runs every check independently, so one failure does not hide the next.
+
+```bash
+neetoplaydash doctor
+```
+
+```
+✓ Authentication: authenticated as oliver.smith@example.com on acme.neetoplaydash.com
+✓ API connection: https://acme.neetoplaydash.com (responding in 214ms)
+✓ CLI version: 1.0.9
+```
+
+It reports whether you are signed in, whether the workspace responds, and which version is running. When more than one workspace is signed in, pass `--subdomain`.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Not authenticated. Run 'neetoplaydash login' to authenticate.">
+    The credential store is empty. Run `neetoplaydash login` and complete the browser sign-in. See [Authentication](/cli/authentication).
+  </Accordion>
+
+  <Accordion title="Multiple subdomains authenticated (acme, globex); specify --subdomain or --all.">
+    More than one workspace is signed in, so the CLI cannot pick one for you. Add `--subdomain <name>` to the command. The message lists every signed-in workspace.
+  </Accordion>
+
+  <Accordion title="Not authenticated for &quot;foo&quot;. Authenticated subdomains: acme, globex.">
+    The `--subdomain` you passed is not signed in. Check the spelling against the list in the message, or sign in with `neetoplaydash login --subdomain foo`.
+  </Accordion>
+
+  <Accordion title="unknown flag / unknown command / accepts N arg(s)">
+    A usage error. The CLI prints the message followed by `Run 'neetoplaydash --help' for usage.` Check the positional arguments a command needs on its [reference page](/cli-reference/overview), or run `neetoplaydash <command> --help`.
+  </Accordion>
+
+  <Accordion title="A command returns fewer results than the dashboard shows">
+    List commands are paginated and default to a single page. Raise `--page-size` (max 100) or walk the pages with `--page`, using `pagination.total_pages` from the [JSON envelope](/cli/output-formats) to know when to stop.
+  </Accordion>
+
+  <Accordion title="A test entity id is refused for a run you know it ran in">
+    A test entity id must name an entity that the given run recorded. An entity that ran only in other runs is refused rather than returned empty. Confirm the id with `neetoplaydash test-entities list <run_id> --project <project_id>`.
+  </Accordion>
+</AccordionGroup>
+
+## API errors
+
+Errors from the server come back with the server's own message. The HTTP status is the first clue - see [HTTP response codes](/getting-started/response-codes) for what each one means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`.
+
+## The command runs but the output looks wrong
+
+Pretty tables choose their columns from the payload and the terminal width, so they can leave a field out. Re-run with `--json` to see the complete record:
+
+```bash
+neetoplaydash runs list pdqmxlz --json
+```
+
+## Still stuck?
+
+Confirm you are on the latest CLI:
+
+```bash
+neetoplaydash update
+```
+
+Then contact [support@neetoplaydash.com](mailto:support@neetoplaydash.com) or visit the [help center](https://help.neetoplaydash.com). Including the output of `neetoplaydash doctor` and `neetoplaydash version` speeds this up considerably.

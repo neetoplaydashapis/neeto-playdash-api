@@ -1,0 +1,54 @@
+---
+title: "traces"
+description: "Fetch Playwright trace viewer links for a run or a single test."
+---
+
+import TracesListFlags from '/snippets/cli/traces/list.mdx'
+
+A Playwright trace records everything the browser did during a test: the DOM at each step, network calls, console output, and screenshots. These commands hand you links that open those traces in Playwright's viewer, which is where a failure stops being a stack trace and starts being something you can step through.
+
+For fields and response details, see the [API reference](/api-reference/traces/list).
+
+<Note>
+  Sample output on this page uses `--json`. Pretty tables pick their columns
+  from the payload and the terminal width, so they are not reproducible; the
+  JSON envelope is. See [Output formats](/cli/output-formats).
+</Note>
+
+## traces list
+
+Lists trace viewer links for every test entity in a run, or for one entity when `--test-entity-id` is given.
+
+### Required arguments
+
+- `<run_id>` - the run whose traces to list, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
+```bash
+neetoplaydash traces list kftwnab --project pdqmxlz --test-entity-id vhrscje
+```
+
+<TracesListFlags />
+
+```json Sample output
+{
+  "data": [
+    {
+      "test_entity_id": "vhrscje",
+      "title": "adds an item to the cart",
+      "trace_urls": [
+        "https://trace.playwright.dev/?trace=https://assets-cdn.neetoplaydash.com/traces/abc123.zip"
+      ]
+    }
+  ]
+}
+```
+
+<Warning>
+  Each link points at `trace.playwright.dev`, Playwright's hosted viewer, and
+  carries a time-limited NeetoPlaydash URL for the trace file so the viewer can
+  load it. That viewer is operated by Microsoft, not by NeetoPlaydash. Opening a
+  link sends the artifact URL there.
+</Warning>
+
+The NeetoPlaydash part of the URL expires, so fetch links when you are about to open them rather than saving them for later.

@@ -1,0 +1,8 @@
+| Flag | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `--author` | `string` |  |  | Count only runs by this author |
+| `--branch` | `string` |  |  | Count only runs on this branch |
+| `--end-date` | `string` |  |  | End of the range, YYYY-MM-DD (default: today; a future date is clamped to today) |
+| `--start-date` | `string` |  |  | Start of the range, YYYY-MM-DD (default: 29 days before the end date; must be within the most recent 3 months) |
+| `--tags` | `string` |  |  | Comma-separated tags; count only runs carrying every listed tag (e.g. nightly,smoke) |
+| `--timezone` | `string` |  |  | IANA timezone used to bucket days and resolve date defaults (e.g. America/New_York; default UTC) |

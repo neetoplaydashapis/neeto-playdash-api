@@ -1,0 +1,310 @@
+[
+  {
+    "command": "neetoplaydash doctor",
+    "description": "Check CLI health and connectivity"
+  },
+  {
+    "command": "neetoplaydash insights",
+    "description": "View a project's testing insights over a date range",
+    "subcommands": [
+      {
+        "command": "neetoplaydash insights get",
+        "description": "Show a project's daily and overall run and test insights",
+        "flags": [
+          {
+            "name": "author",
+            "type": "string",
+            "description": "Count only runs by this author"
+          },
+          {
+            "name": "branch",
+            "type": "string",
+            "description": "Count only runs on this branch"
+          },
+          {
+            "name": "end-date",
+            "type": "string",
+            "description": "End of the range, YYYY-MM-DD (default: today; a future date is clamped to today)"
+          },
+          {
+            "name": "start-date",
+            "type": "string",
+            "description": "Start of the range, YYYY-MM-DD (default: 29 days before the end date; must be within the most recent 3 months)"
+          },
+          {
+            "name": "tags",
+            "type": "string",
+            "description": "Comma-separated tags; count only runs carrying every listed tag (e.g. nightly,smoke)"
+          },
+          {
+            "name": "timezone",
+            "type": "string",
+            "description": "IANA timezone used to bucket days and resolve date defaults (e.g. America/New_York; default UTC)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash login",
+    "description": "Authenticate to NeetoPlaydash via browser"
+  },
+  {
+    "command": "neetoplaydash logout",
+    "description": "Sign out and clear saved credentials",
+    "flags": [
+      {
+        "name": "all",
+        "type": "bool",
+        "default": "false",
+        "description": "Sign out of every saved subdomain"
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash projects",
+    "description": "Manage projects",
+    "subcommands": [
+      {
+        "command": "neetoplaydash projects list",
+        "description": "List projects in the workspace",
+        "flags": [
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash result-histories",
+    "description": "View a test entity's result history across runs",
+    "subcommands": [
+      {
+        "command": "neetoplaydash result-histories list",
+        "description": "List result history for a test entity",
+        "flags": [
+          {
+            "name": "days",
+            "type": "int",
+            "default": "0",
+            "description": "Number of days to look back from the anchor date (default 7)"
+          },
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "run",
+            "type": "string",
+            "description": "Id of the run the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "started-at",
+            "type": "string",
+            "description": "ISO anchor date to count back from (e.g. 2025-01-15)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash runs",
+    "description": "Manage runs",
+    "subcommands": [
+      {
+        "command": "neetoplaydash runs get",
+        "description": "Show a run with summary, statistics, and specs",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          }
+        ]
+      },
+      {
+        "command": "neetoplaydash runs list",
+        "description": "List runs for a project",
+        "flags": [
+          {
+            "name": "branch",
+            "type": "string",
+            "description": "Filter runs by branch name"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Filter runs by status (e.g. passed, failed, running)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash setup",
+    "description": "Set up NeetoPlaydash for AI coding assistants",
+    "subcommands": [
+      {
+        "command": "neetoplaydash setup claude",
+        "description": "Register NeetoPlaydash plugin with Claude Code"
+      },
+      {
+        "command": "neetoplaydash setup codex",
+        "description": "Add NeetoPlaydash instructions for OpenAI Codex"
+      },
+      {
+        "command": "neetoplaydash setup copilot",
+        "description": "Add NeetoPlaydash instructions for GitHub Copilot"
+      },
+      {
+        "command": "neetoplaydash setup cursor",
+        "description": "Write NeetoPlaydash rules for Cursor IDE"
+      },
+      {
+        "command": "neetoplaydash setup gemini",
+        "description": "Add NeetoPlaydash instructions for Gemini CLI"
+      },
+      {
+        "command": "neetoplaydash setup windsurf",
+        "description": "Write NeetoPlaydash rules for Windsurf IDE"
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash test-entities",
+    "description": "Manage test entities (specs and tests)",
+    "subcommands": [
+      {
+        "command": "neetoplaydash test-entities get",
+        "description": "Show a test entity with outcomes and attempts",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "run",
+            "type": "string",
+            "description": "Id of the run the resource belongs to",
+            "required": true
+          }
+        ]
+      },
+      {
+        "command": "neetoplaydash test-entities list",
+        "description": "List test entities for a run",
+        "flags": [
+          {
+            "name": "kind",
+            "type": "string",
+            "description": "Kind of test entity: spec (default) or test"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "description": "Page number"
+          },
+          {
+            "name": "page-size",
+            "type": "int",
+            "default": "0",
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "Comma-separated statuses to filter by (e.g. failed,flaky)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash top-errors",
+    "description": "Get a run's top errors with failing tests grouped by shared error log",
+    "subcommands": [
+      {
+        "command": "neetoplaydash top-errors list",
+        "description": "List a run's top errors, ordered by the number of affected tests",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash traces",
+    "description": "Get Playwright trace viewer URLs for a run",
+    "subcommands": [
+      {
+        "command": "neetoplaydash traces list",
+        "description": "List Playwright trace viewer URLs for a run",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "test-entity-id",
+            "type": "string",
+            "description": "Scope traces to a single test entity"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "neetoplaydash update",
+    "description": "Update the CLI to the latest version"
+  },
+  {
+    "command": "neetoplaydash version",
+    "description": "Print the CLI version"
+  },
+  {
+    "command": "neetoplaydash whoami",
+    "description": "Show current authenticated user(s)"
+  }
+]

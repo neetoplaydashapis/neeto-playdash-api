@@ -9,3 +9,16 @@
 3. **After making any changes, run `yarn build:dev`.** This regenerates the API documentation in the `bundled` folder from the `docs` folder.
 
 4. **Both `docs` and `bundled` changes must be committed and pushed.** After running `yarn build:dev`, the updated files in both the `docs` folder and the `bundled` folder need to be checked in and pushed together.
+
+5. **Never hand-edit the generated CLI reference.** `snippets/cli/**` and `cli-reference/overview.mdx` are written by
+   `scripts/generate-cli-reference.mjs` from `cli/catalog.json` and are overwritten on every build. To refresh them,
+   snapshot the catalog from a CLI binary built off `neeto-playdash-cli`'s latest `main` and regenerate:
+
+   ```bash
+   yarn cli:catalog   # neetoplaydash commands > cli/catalog.json
+   yarn cli:build
+   ```
+
+   Every other page under `cli/` and `cli-reference/` is hand-written and safe to edit. When the CLI gains a new
+   top-level resource, add it to `groupToPage` in `scripts/generate-cli-reference.mjs`; the generator warns on stderr
+   for anything unmapped.

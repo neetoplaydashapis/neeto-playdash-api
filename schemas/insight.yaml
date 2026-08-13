@@ -1,0 +1,183 @@
+components:
+  schemas:
+    insight_runs_day:
+      type: object
+      description: >-
+        Run counts for one day. Only `date` is present on a day the project recorded no
+        passed or failed runs; every other property is omitted for that day.
+      properties:
+        date:
+          type: string
+          description: Day the counts belong to, formatted as `%b %e, %Y` in the requested timezone.
+          example: "Aug 13, 2026"
+        passed_runs_count:
+          type: integer
+          description: Runs that passed on this day.
+          example: 24
+        failed_runs_count:
+          type: integer
+          description: Runs that failed on this day.
+          example: 3
+        average_passing_rate:
+          type: number
+          description: Percentage of this day's runs that passed.
+          example: 88.89
+        average_run_duration:
+          type: number
+          description: Average run duration on this day, in milliseconds.
+          example: 182450.0
+
+    insight_runs_overall:
+      type: object
+      properties:
+        passed_runs_count:
+          type: integer
+          description: Runs that passed across the range.
+          example: 612
+        failed_runs_count:
+          type: integer
+          description: Runs that failed across the range.
+          example: 88
+        average_passing_rate:
+          type: number
+          description: Percentage of runs in the range that passed.
+          example: 87.43
+        average_run_duration:
+          type: number
+          description: Average run duration across the range, in milliseconds.
+          example: 176320.5
+
+    insight_runs:
+      type: object
+      properties:
+        runs_volume_data:
+          type: array
+          description: One entry per day in the range, oldest first.
+          items:
+            $ref: '#/components/schemas/insight_runs_day'
+        overall_data:
+          $ref: '#/components/schemas/insight_runs_overall'
+
+    insight_tests_day:
+      type: object
+      description: >-
+        Test-result counts for one day. Only `date` is present on a day the project
+        recorded no test results; every other property is omitted for that day.
+      properties:
+        date:
+          type: string
+          description: Day the counts belong to, formatted as `%b %e, %Y` in the requested timezone.
+          example: "Aug 13, 2026"
+        passed_tests_count:
+          type: integer
+          description: Tests that passed on this day, flaky ones included.
+          example: 1840
+        failed_tests_count:
+          type: integer
+          description: Tests that failed on this day.
+          example: 26
+        skipped_tests_count:
+          type: integer
+          description: Tests skipped on this day.
+          example: 12
+        flaky_tests_count:
+          type: integer
+          description: Tests that passed on a retry after failing at least once on this day.
+          example: 9
+        timed_out_tests_count:
+          type: integer
+          description: Tests that timed out on this day.
+          example: 4
+        pass_percentage:
+          type: number
+          description: Percentage of this day's test results that passed.
+          example: 97.72
+        fail_percentage:
+          type: number
+          description: Percentage of this day's test results that failed.
+          example: 1.38
+        skip_percentage:
+          type: number
+          description: Percentage of this day's test results that were skipped.
+          example: 0.64
+        flaky_percentage:
+          type: number
+          description: Percentage of this day's test results that were flaky.
+          example: 0.48
+        timed_out_percentage:
+          type: number
+          description: Percentage of this day's test results that timed out.
+          example: 0.21
+        average_passing_rate:
+          type: number
+          description: Same value as `pass_percentage`, under the name the runs section uses.
+          example: 97.72
+        average_flakiness_rate:
+          type: number
+          description: Same value as `flaky_percentage`, under the name the runs section uses.
+          example: 0.48
+
+    insight_tests_overall:
+      type: object
+      properties:
+        passed_tests_count:
+          type: integer
+          description: Tests that passed across the range, flaky ones included.
+          example: 48210
+        failed_tests_count:
+          type: integer
+          description: Tests that failed across the range.
+          example: 702
+        skipped_tests_count:
+          type: integer
+          description: Tests skipped across the range.
+          example: 318
+        flaky_tests_count:
+          type: integer
+          description: Tests that passed on a retry after failing at least once.
+          example: 241
+        timed_out_tests_count:
+          type: integer
+          description: Tests that timed out across the range.
+          example: 96
+        average_passing_rate:
+          type: number
+          description: Percentage of tests in the range that passed.
+          example: 97.71
+        average_flakiness_rate:
+          type: number
+          description: Percentage of tests in the range that were flaky.
+          example: 0.49
+
+    insight_tests:
+      type: object
+      properties:
+        tests_volume_data:
+          type: array
+          description: One entry per day in the range, oldest first.
+          items:
+            $ref: '#/components/schemas/insight_tests_day'
+        overall_data:
+          $ref: '#/components/schemas/insight_tests_overall'
+
+    insight_response:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          description: Effective start of the range after clamping, in the requested timezone.
+          example: "2026-07-15"
+        end_date:
+          type: string
+          format: date
+          description: Effective end of the range after clamping, in the requested timezone.
+          example: "2026-08-13"
+        timezone:
+          type: string
+          description: IANA timezone the day buckets and dates are expressed in.
+          example: "Etc/UTC"
+        runs:
+          $ref: '#/components/schemas/insight_runs'
+        tests:
+          $ref: '#/components/schemas/insight_tests'

@@ -1,0 +1,64 @@
+---
+title: "top-errors"
+description: "Group a run's failing tests by the error they share."
+---
+
+import TopErrorsListFlags from '/snippets/cli/top-errors/list.mdx'
+
+When a run goes red with forty failures, they are usually not forty problems. `top-errors` collapses the failing tests onto the error log they share and orders the groups by how many tests each one took down, so the largest cause is the first thing you read.
+
+For fields and response details, see the [API reference](/api-reference/top-errors/list).
+
+<Note>
+  Sample output on this page uses `--json`. The pretty format for this command
+  is a block per error rather than a table, because logs span several lines and
+  the affected tests are nested. See [Output formats](/cli/output-formats).
+</Note>
+
+## top-errors list
+
+Lists the run's errors, most affected tests first.
+
+### Required arguments
+
+- `<run_id>` - the run whose errors to group, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
+```bash
+neetoplaydash top-errors list kftwnab --project pdqmxlz
+```
+
+<TopErrorsListFlags />
+
+```json Sample output
+{
+  "data": [
+    {
+      "count": 3,
+      "log": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+      "test_entity_ids": ["vhrscje", "dhkscfj", "qmtzwbn"],
+      "test_entities": [
+        {
+          "id": "vhrscje",
+          "title": "adds an item to the cart",
+          "spec": { "id": "bhkscfe", "title": "cart.spec.ts" },
+          "project": "spinkart-web",
+          "describe_path": ["Cart"]
+        }
+      ]
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Show test entity",
+      "command": "neetoplaydash test-entities get <test_entity_id> --project <project_id> --run <run_id>"
+    }
+  ]
+}
+```
+
+`test_entity_ids` names every test in the group. `test_entities` describes a capped subset of them, so on a large group the two differ in length - read any test beyond the described ones with [`test-entities get`](/cli-reference/test-entities). The pretty format makes this explicit by printing a `+N more` line with the remaining ids.
+
+The error log is the grouping key with Playwright's per-test `Call log:` section stripped, which is what lets tests that failed the same way land in the same group.
+
+The response is not paginated and returns at most 20 groups.
