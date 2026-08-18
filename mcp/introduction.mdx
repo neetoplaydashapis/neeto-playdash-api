@@ -35,6 +35,31 @@ See [Tools](/mcp/tools) for the full list.
   tests, and traces; it cannot change or delete anything in your workspace.
 </Note>
 
+## MCP vs CLI: which should I use?
+
+The [NeetoPlaydash CLI](/cli/introduction) reaches exactly what MCP reaches - projects, runs, the specs and tests a run recorded, top errors, result histories, traces, and insights - and both are read-only. Neither one can do more than the other, so choose on how the question reaches NeetoPlaydash.
+
+### Reach for MCP when
+
+- **You are working out what broke, and each step depends on the last answer.** Forty red tests can be one broken selector or forty separate regressions. Getting from the run to the cause means reading a failed attempt's error output, judging what it points at, and only then deciding whether to open the trace, the earlier runs, or a different spec. A command can only carry out a decision you have already made.
+- **The clue is in the conversation, not in the run.** A stack trace someone pasted from Slack, a screenshot from a reviewer, the diff you just wrote - the assistant weighs those against the attempts and error output NeetoPlaydash recorded, and tells you whether they line up. The CLI sees nothing but the flags you type.
+- **One question spans several resources.** "Is this failure new, or has it been flaky for weeks?" walks the project's runs, that run's failing tests, one test's attempts, and that test's history across earlier runs. Here that is a single request with nothing to copy between steps.
+- **The person asking does not use a terminal.** NeetoPlaydash hosts the server, so a QA lead who wants to know whether the suite is drifting simply asks. There is nothing to install, and nothing to update when the CLI moves on.
+
+### Reach for the CLI instead when
+
+- **No model should be in the loop.** The binary and a [signed-in workspace](/cli/authentication) are the whole dependency - nothing to keep running, no model account, nothing metered per invocation. A scheduled agent can reach this server from a CI job, but every call it makes still costs a model call; `neetoplaydash runs get <run_id> --project <project_id> --quiet` does not, whether it runs once or after every suite of the day.
+- **The output feeds another program.** The CLI prints the bare payload with `--quiet`, or JSON with `--json`, so a run's `status` can drive a shell condition and a run's top errors can go through `jq` into a Slack message or a spreadsheet. Here you get prose you would have to copy out by hand.
+- **You are sweeping a whole suite rather than chasing one failure.** Here each page of a run's tests is a separate tool call, and the rows accumulate in the assistant's context until they crowd out the question you asked. The CLI returns `total_records` and `total_pages` beside the records, so a shell loop walks every page unattended and writes each one to a file or into `jq`.
+- **The check has to be repeatable and reviewable.** A command is the artifact: it records exactly what was asked, repeats identically, and a reviewer can read it in a pull request. Ask the same thing twice here and the assistant may take a different route to the answer.
+
+<Tip>
+  You can have both. Run [`neetoplaydash setup claude`](/cli/ai-assistants) and
+  the same assistant you are chatting with here drives the CLI too, so a check
+  you want written down still ends in an exact command you can read, repeat,
+  and paste into a script.
+</Tip>
+
 ## What you need
 
 1. An AI assistant that supports remote MCP servers. See [Connect](/mcp/connect) for the ones we cover.
