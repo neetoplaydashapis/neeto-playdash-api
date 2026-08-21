@@ -40,17 +40,39 @@ The server implements OAuth 2.1 with PKCE and dynamic client registration, so a 
 
 Discovery metadata is published at `/.well-known/oauth-authorization-server` and `/.well-known/oauth-protected-resource`, so most clients find all of this on their own.
 
+### What you approve
+
+The **Authorize access** screen lists what the connection is asking for. NeetoPlaydash asks for two things, and both are always granted, so the screen has nothing for you to tick.
+
+| Scope | Shown as | What it means | Always granted |
+| --- | --- | --- | --- |
+| `read` | **Read** | See everything in the selected workspaces. | Yes |
+| `offline_access` | **Stay connected** | Keep working in the background without asking you to sign in again. | Yes |
+
+That empty choice is the read-only guarantee made visible. A product that can change your data also asks here for `write` and `delete`, as checkboxes you tick or leave alone. NeetoPlaydash advertises neither scope, so no client can ask for one and no tool can act on one.
+
+<Frame caption="The Authorize access screen. Read and Stay connected are both ticked and disabled, because both are always granted.">
+  <img src="/assets/mcp/oauth-authorize.png" alt="NeetoPlaydash 'Authorize access' screen showing the workspace, the signed-in email, the host it sends you back to, a 'What this connection can do' fieldset listing Read and Stay connected as ticked, disabled, always granted rows, a 'Workspaces to connect' list, and Cancel and Authorize buttons" />
+</Frame>
+
 ### Signing in
 
 <Steps>
   <Step title="Add the server">
     Point your client at `https://connect.neetoplaydash.com/mcp/messages` with no credential. See [Connect](/mcp/connect) for your client's exact steps.
   </Step>
-  <Step title="Approve in the browser">
-    The client opens NeetoPlaydash in your browser. Sign in if you are not already.
+  <Step title="Name your workspace">
+    The client opens NeetoPlaydash in your browser and asks which workspace to connect. Enter the subdomain: for `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/getting-started/workspace-subdomain).
+
+    <Frame caption="The first screen of the NeetoPlaydash OAuth flow.">
+      <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a workspace subdomain field, a fixed .neetoplaydash.com suffix, and a Continue button" />
+    </Frame>
   </Step>
-  <Step title="Choose your workspaces">
-    If your account belongs to more than one NeetoPlaydash workspace, you pick which ones this connection may read. Only the ones you approve become reachable.
+  <Step title="Sign in">
+    Sign in to that workspace if you are not already.
+  </Step>
+  <Step title="Choose your workspaces and authorize">
+    The **Authorize access** screen names the workspace, the email you signed in as, and the host the client sends you back to. If your account belongs to more than one NeetoPlaydash workspace, **Workspaces to connect** lists them all: the one you signed in to is ticked and cannot be unticked, and you tick any others this connection may read. Then click **Authorize**.
   </Step>
   <Step title="Return to the client">
     The client stores the token and refreshes it as needed. `offline_access` is what makes that refresh possible, so you are not signed out mid-session.

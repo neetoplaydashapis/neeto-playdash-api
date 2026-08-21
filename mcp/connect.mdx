@@ -33,7 +33,13 @@ For the clients that read a config file, the credential's presence is what selec
 
 <Tabs>
   <Tab title="Claude">
-    Open **Settings → Connectors**, click **Add**, then **Add custom connector**.
+    NeetoPlaydash is not listed in Anthropic's connector directory, so you add it yourself as a custom connector.
+
+    Open **[Settings → Connectors](https://claude.ai/customize/connectors)**, click **Add**, then **Add custom connector**.
+
+    <Frame caption="The Add menu in Claude's Connectors settings.">
+      <img src="/assets/mcp/claude-add-menu.png" alt="Menu under the Add button in Claude's Connectors settings, with two items, Browse connectors and Add custom connector" />
+    </Frame>
 
     Give it a **Name** such as `NeetoPlaydash`, paste the URL, and click **Add**:
 
@@ -41,16 +47,36 @@ For the clients that read a config file, the credential's presence is what selec
     https://connect.neetoplaydash.com/mcp/messages
     ```
 
-    Claude opens NeetoPlaydash in your browser to sign in and approve the workspaces. This works on claude.ai, the Claude desktop app, and Cowork.
+    Leave **Advanced settings** alone. The optional OAuth client ID and secret there are for servers that cannot register a client on their own, and NeetoPlaydash registers each client automatically.
+
+    <Frame caption="The Add custom connector dialog, ready to submit.">
+      <img src="/assets/mcp/claude-add-custom-connector-dialog.png" alt="Claude's 'Add custom connector' dialog with the name NeetoPlaydash and the server URL https://connect.neetoplaydash.com/mcp/messages filled in, and empty optional OAuth client ID and secret fields under Advanced settings" />
+    </Frame>
+
+    Then click **Connect** on the new entry. Claude opens NeetoPlaydash in your browser to sign in and approve the workspaces.
+
+    One connector list backs claude.ai, the Claude desktop app, Claude mobile, and Cowork, so a connector you add in one shows up in the others.
+
+    On a Team plan you may not be able to add it yourself. An Owner adds the same server URL once under **[Organization settings → Connectors](https://claude.ai/admin-settings/connectors)** - the approval covers that one connector rather than custom connectors as a whole - after which everyone connects it from their own Connectors list.
+
+    Anthropic documents the current steps in [Get started with custom connectors using remote MCP](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
   </Tab>
   <Tab title="ChatGPT">
-    Turn on developer mode first: **Settings → Security and login → Developer mode**.
+    Turn on developer mode first: **Settings → Security and login → Developer mode**. The **Plugins** settings section links straight to it.
 
-    Then open **Plugins → Browse plugins → + → New Plugin**, paste the URL, and choose OAuth authentication:
+    <Frame caption="Developer mode is what lets ChatGPT add an MCP server of its own.">
+      <img src="/assets/mcp/chatgpt-developer-mode.png" alt="ChatGPT's Developer mode setting, tagged Elevated risk, with its toggle switched on" />
+    </Frame>
+
+    Then open **Plugins → Browse plugins → + → New Plugin**, enter a name, set **Connection** to **Server URL**, and paste the URL:
 
     ```
     https://connect.neetoplaydash.com/mcp/messages
     ```
+
+    Leave **Authentication** on **OAuth** - ChatGPT reads NeetoPlaydash's OAuth settings from the URL, so **Advanced OAuth settings** needs nothing from you. Tick **I understand and want to continue**, click **Create**, and approve the sign in.
+
+    OpenAI documents the current steps in [Building MCP servers for plugins and API integrations](https://developers.openai.com/api/docs/mcp). They renamed the app directory to the plugin directory in July 2026, so older walkthroughs may say "apps" or "connectors" where the UI now says "plugins".
   </Tab>
   <Tab title="Claude Code">
     ```bash
@@ -137,6 +163,35 @@ For the clients that read a config file, the credential's presence is what selec
     Windsurf uses `serverUrl`, not `url`. Enable the server in **Settings → Cascade → MCP Servers** and sign in when prompted.
   </Tab>
 </Tabs>
+
+### What the sign in looks like
+
+Whichever client you started from, NeetoPlaydash runs the same steps in your browser.
+
+<Steps>
+  <Step title="Name your workspace">
+    Enter the subdomain of the workspace you want the assistant to read. For `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/getting-started/workspace-subdomain).
+
+    <Frame caption="The first screen of the NeetoPlaydash OAuth flow.">
+      <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a workspace subdomain field, a fixed .neetoplaydash.com suffix, and a Continue button" />
+    </Frame>
+  </Step>
+  <Step title="Sign in">
+    Sign in to that workspace if you are not signed in already.
+  </Step>
+  <Step title="Check what you are approving">
+    **Authorize access** names the workspace, the email you signed in as, and the host the client sends you back to. Under **What this connection can do**, NeetoPlaydash asks for **Read** and **Stay connected**. Both are marked *always granted*, so both are ticked and disabled and there is nothing for you to choose. NeetoPlaydash advertises no write or delete permission for a client to ask for.
+
+    **Workspaces to connect** appears only when your email belongs to more than one workspace. The one you signed in to is ticked and cannot be unticked; tick any others this connection may read.
+
+    <Frame caption="The Authorize access screen, with both permissions always granted.">
+      <img src="/assets/mcp/oauth-authorize.png" alt="NeetoPlaydash 'Authorize access' screen showing the workspace, the signed-in email, the host it sends you back to, a 'What this connection can do' fieldset listing Read and Stay connected as ticked, disabled, always granted rows, a 'Workspaces to connect' list, and Cancel and Authorize buttons" />
+    </Frame>
+  </Step>
+  <Step title="Authorize">
+    Click **Authorize**. The browser returns you to the client, which stores the token and lists the NeetoPlaydash tools.
+  </Step>
+</Steps>
 
 ## Connect with an API key
 
