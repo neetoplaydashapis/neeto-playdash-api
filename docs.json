@@ -37,69 +37,69 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "API Reference",
+        "tab": "API",
         "icon": "code",
         "groups": [
           {
             "group": "Getting Started",
             "icon": "rocket",
             "pages": [
-              "getting-started/introduction",
-              "getting-started/workspace-subdomain",
-              "getting-started/authentication",
-              "getting-started/pagination",
-              "getting-started/response-codes"
+              "api/introduction",
+              "api/workspace-subdomain",
+              "api/authentication",
+              "api/pagination",
+              "api/response-codes"
             ]
           },
           {
             "group": "Projects",
             "icon": "folder",
             "pages": [
-              "api-reference/projects/list"
+              "api/projects/list"
             ]
           },
           {
             "group": "Insights",
             "icon": "chart-line",
             "pages": [
-              "api-reference/insights/get"
+              "api/insights/get"
             ]
           },
           {
             "group": "Runs",
             "icon": "play",
             "pages": [
-              "api-reference/runs/list",
-              "api-reference/runs/get"
+              "api/runs/list",
+              "api/runs/get"
             ]
           },
           {
             "group": "Test Entities",
             "icon": "vial",
             "pages": [
-              "api-reference/test-entities/list",
-              "api-reference/test-entities/get"
+              "api/test-entities/list",
+              "api/test-entities/get"
             ]
           },
           {
             "group": "Result Histories",
             "icon": "clock-rotate-left",
             "pages": [
-              "api-reference/result-histories/list"
+              "api/result-histories/list"
             ]
           },
           {
             "group": "Traces",
             "icon": "route",
             "pages": [
-              "api-reference/traces/list"
+              "api/traces/list"
             ]
           },
           {
             "group": "Top Errors",
             "icon": "triangle-exclamation",
             "pages": [
-              "api-reference/top-errors/list"
+              "api/top-errors/list"
             ]
           }
         ]
@@ -187,5 +187,31 @@
   "appearance": {
     "default": "light",
     "strict": true
-  }
+  },
+  "redirects": [
+    {
+      "source": "/getting-started/introduction",
+      "destination": "/api/introduction"
+    },
+    {
+      "source": "/getting-started/workspace-subdomain",
+      "destination": "/api/workspace-subdomain"
+    },
+    {
+      "source": "/getting-started/authentication",
+      "destination": "/api/authentication"
+    },
+    {
+      "source": "/getting-started/pagination",
+      "destination": "/api/pagination"
+    },
+    {
+      "source": "/getting-started/response-codes",
+      "destination": "/api/response-codes"
+    },
+    {
+      "source": "/api-reference/:slug*",
+      "destination": "/api/:slug*"
+    }
+  ]
 }

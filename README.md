@@ -1,7 +1,7 @@
 # NeetoPlaydash API Docs
 
 This repository contains the documentation for the
-[NeetoPlaydash APIs](https://apidocs.neetoplaydash.com/getting-started/introduction), built using
+[NeetoPlaydash APIs](https://apidocs.neetoplaydash.com/api/introduction), built using
 [Mintlify](https://mintlify.com/).
 
 ## Development Setup

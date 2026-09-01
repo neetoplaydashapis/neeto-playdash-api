@@ -3,9 +3,8 @@ fail_fast: true
 plan: standard-2
 
 paths:
-  - api-reference/**
+  - api/**
   - docs/**
-  - getting-started/**
   - snippets/**
   - schemas/**
   - assets/**

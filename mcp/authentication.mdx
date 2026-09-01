@@ -62,7 +62,7 @@ That empty choice is the read-only guarantee made visible. A product that can ch
     Point your client at `https://connect.neetoplaydash.com/mcp/messages` with no credential. See [Connect](/mcp/connect) for your client's exact steps.
   </Step>
   <Step title="Name your workspace">
-    The client opens NeetoPlaydash in your browser and asks which workspace to connect. Enter the subdomain: for `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/getting-started/workspace-subdomain).
+    The client opens NeetoPlaydash in your browser and asks which workspace to connect. Enter the subdomain: for `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/api/workspace-subdomain).
 
     <Frame caption="The first screen of the NeetoPlaydash OAuth flow.">
       <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a workspace subdomain field, a fixed .neetoplaydash.com suffix, and a Continue button" />
@@ -89,7 +89,7 @@ An API key has only one workspace, so `workspace` is redundant on that kind of c
 
 Use an API key when your client cannot do OAuth, or when you want a connection that belongs to the workspace rather than to a person - a shared bot, for instance.
 
-Generate one from your workspace's API keys screen; see the [help centre article](https://help.neetoplaydash.com/articles/api-keys). It is the same key the [REST API](/getting-started/authentication) uses.
+Generate one from your workspace's API keys screen; see the [help centre article](https://help.neetoplaydash.com/articles/api-keys). It is the same key the [REST API](/api/authentication) uses.
 
 Send it as a bearer token:
 
@@ -110,6 +110,6 @@ The header differs from the one the REST API expects. The same key authenticates
 
 | Surface | Credential | Reaches |
 | --- | --- | --- |
-| [REST API](/getting-started/authentication) | `X-Api-Key` header | The key's workspace |
+| [REST API](/api/authentication) | `X-Api-Key` header | The key's workspace |
 | [CLI](/cli/authentication) | Browser sign-in, stored locally | Each workspace you signed in to |
 | MCP | OAuth, or an API key as a bearer token | The approved workspaces, or the key's workspace |

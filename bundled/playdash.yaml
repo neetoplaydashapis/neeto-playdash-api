@@ -9,7 +9,7 @@ servers:
     variables:
       your-subdomain:
         default: spinkart
-        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+        description: Replace **spinkart** with your [workspace's subdomain](/api/workspace-subdomain).
 tags:
   - name: Projects
     description: APIs to list projects in the workspace.
@@ -358,7 +358,7 @@ paths:
       operationId: listTopErrors
       tags:
         - Top Errors
-      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api-reference/test-entities/list) endpoint with a status filter instead.
+      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api/test-entities/list) endpoint with a status filter instead.
       parameters:
         - $ref: '#/components/parameters/api_key_header'
         - $ref: '#/components/parameters/accept_header'
@@ -376,7 +376,7 @@ components:
     api_key_header:
       in: header
       name: X-Api-Key
-      description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/getting-started/authentication) for more information.
+      description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/api/authentication) for more information.
       required: true
       schema:
         type: string
@@ -410,7 +410,7 @@ components:
     project_id_param:
       in: path
       name: project_id
-      description: Id of the project. You can get `project_id` by listing your projects using the [List projects](/api-reference/projects/list) API.
+      description: Id of the project. You can get `project_id` by listing your projects using the [List projects](/api/projects/list) API.
       required: true
       schema:
         type: string
@@ -418,7 +418,7 @@ components:
     run_id_param:
       in: path
       name: run_id
-      description: Id of the run. You can get `run_id` by listing runs using the [List runs](/api-reference/runs/list) API.
+      description: Id of the run. You can get `run_id` by listing runs using the [List runs](/api/runs/list) API.
       required: true
       schema:
         type: string
@@ -426,7 +426,7 @@ components:
     test_entity_id_param:
       in: path
       name: test_entity_id
-      description: Id of the test entity (a spec or a test). You can get `test_entity_id` by listing test entities using the [List test entities](/api-reference/test-entities/list) API.
+      description: Id of the test entity (a spec or a test). You can get `test_entity_id` by listing test entities using the [List test entities](/api/test-entities/list) API.
       required: true
       schema:
         type: string

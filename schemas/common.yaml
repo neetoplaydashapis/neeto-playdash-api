@@ -2,7 +2,7 @@
 api_key_header:
   in: header
   name: X-Api-Key
-  description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/getting-started/authentication) for more information.
+  description: Use the X-Api-Key header to provide your workspace API key. Refer to [Authentication](/api/authentication) for more information.
   required: true
   schema:
     type: string
@@ -42,7 +42,7 @@ page_size_param:
 project_id_param:
   in: path
   name: project_id
-  description: Id of the project. You can get `project_id` by listing your projects using the [List projects](/api-reference/projects/list) API.
+  description: Id of the project. You can get `project_id` by listing your projects using the [List projects](/api/projects/list) API.
   required: true
   schema:
     type: string
@@ -51,7 +51,7 @@ project_id_param:
 run_id_param:
   in: path
   name: run_id
-  description: Id of the run. You can get `run_id` by listing runs using the [List runs](/api-reference/runs/list) API.
+  description: Id of the run. You can get `run_id` by listing runs using the [List runs](/api/runs/list) API.
   required: true
   schema:
     type: string
@@ -60,7 +60,7 @@ run_id_param:
 test_entity_id_param:
   in: path
   name: test_entity_id
-  description: Id of the test entity (a spec or a test). You can get `test_entity_id` by listing test entities using the [List test entities](/api-reference/test-entities/list) API.
+  description: Id of the test entity (a spec or a test). You can get `test_entity_id` by listing test entities using the [List test entities](/api/test-entities/list) API.
   required: true
   schema:
     type: string

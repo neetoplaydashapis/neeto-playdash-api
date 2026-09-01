@@ -11,25 +11,25 @@ You do not need to call these by name. Describe what you want and the assistant 
 
 | Tool | What it does | API reference |
 | --- | --- | --- |
-| `ListProjects` | Lists the workspace's projects with their id, name, and archived flag. | [List projects](/api-reference/projects/list) |
-| `ListRuns` | Lists a project's runs, newest first, filterable by `branch` and `status`. Returns commit details, author, tags, duration, and aggregate statistics. | [List runs](/api-reference/runs/list) |
-| `GetRun` | Reads one run: commit details, branch, author, tags, status, duration, shard count, and aggregate statistics. | [Get a run](/api-reference/runs/get) |
-| `GetProjectInsights` | Aggregates a project's runs and test results by day over a date range, with overall totals. Narrows to a `branch`, an `author`, or runs carrying every given tag. | [Get project insights](/api-reference/insights/get) |
+| `ListProjects` | Lists the workspace's projects with their id, name, and archived flag. | [List projects](/api/projects/list) |
+| `ListRuns` | Lists a project's runs, newest first, filterable by `branch` and `status`. Returns commit details, author, tags, duration, and aggregate statistics. | [List runs](/api/runs/list) |
+| `GetRun` | Reads one run: commit details, branch, author, tags, status, duration, shard count, and aggregate statistics. | [Get a run](/api/runs/get) |
+| `GetProjectInsights` | Aggregates a project's runs and test results by day over a date range, with overall totals. Narrows to a `branch`, an `author`, or runs carrying every given tag. | [Get project insights](/api/insights/get) |
 
 ## Tests
 
 | Tool | What it does | API reference |
 | --- | --- | --- |
-| `ListTestEntities` | Lists a run's specs or tests, chosen with `kind`, filterable by `status`. Returns each entity's id, title, status, duration, start time, and test count. | [List test entities](/api-reference/test-entities/list) |
-| `GetTestEntity` | Reads one entity. For a test: its outcomes, the attempts inside each, the Playwright error output, and links to captured artifacts. For a spec: the tests the run recorded in that file. | [Get a test entity](/api-reference/test-entities/get) |
+| `ListTestEntities` | Lists a run's specs or tests, chosen with `kind`, filterable by `status`. Returns each entity's id, title, status, duration, start time, and test count. | [List test entities](/api/test-entities/list) |
+| `GetTestEntity` | Reads one entity. For a test: its outcomes, the attempts inside each, the Playwright error output, and links to captured artifacts. For a spec: the tests the run recorded in that file. | [Get a test entity](/api/test-entities/get) |
 
 ## Failures and history
 
 | Tool | What it does | API reference |
 | --- | --- | --- |
-| `GetTopErrors` | Groups a run's failing tests by their shared error log, ordered by how many tests each error affected. Returns at most 20 groups. | [List top errors](/api-reference/top-errors/list) |
-| `GetResultHistories` | Reports how one test entity behaved across earlier runs in a look-back window, with the commit and branch of each run. | [List result histories](/api-reference/result-histories/list) |
-| `GetTraces` | Returns Playwright trace viewer links for a run, or for one test entity. | [List traces](/api-reference/traces/list) |
+| `GetTopErrors` | Groups a run's failing tests by their shared error log, ordered by how many tests each error affected. Returns at most 20 groups. | [List top errors](/api/top-errors/list) |
+| `GetResultHistories` | Reports how one test entity behaved across earlier runs in a look-back window, with the commit and branch of each run. | [List result histories](/api/result-histories/list) |
+| `GetTraces` | Returns Playwright trace viewer links for a run, or for one test entity. | [List traces](/api/traces/list) |
 
 ## Workspaces
 

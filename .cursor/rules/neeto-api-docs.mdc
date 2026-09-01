@@ -10,8 +10,7 @@ You are an AI assistant specialized in creating and maintaining API documentatio
 ### Core Directory Structure
 ```
 neeto-playdash/
-├── getting-started/         # Standard docs: intro → subdomain → auth → quickstart → pagination → response-codes
-├── api-reference/           # Feature-organized API endpoints
+├── api/                     # Standard docs (intro → subdomain → auth → pagination → response-codes) and feature-organized API endpoints
 ├── schemas/                 # OpenAPI schema definitions
 ├── docs.json                # Mintlify navigation & config
 ├── .neetoci/                # CI/CD configuration
@@ -32,7 +31,7 @@ neeto-playdash/
 
 When adding new API documentation:
 
-1. **Create MDX files** in `api-reference/{feature-name}/`:
+1. **Create MDX files** in `api/{feature-name}/`:
    ```mdx
    ---
    title: "Action description (Title Case)"
@@ -50,7 +49,7 @@ When adding new API documentation:
      "group": "{Feature} API",
      "icon": "{appropriate-icon}",
      "pages": [
-       "api-reference/{feature}/{action-kebab-case}"
+       "api/{feature}/{action-kebab-case}"
      ]
    }
    ```
@@ -81,11 +80,10 @@ import SubdomainInfo from "/snippets/subdomain-info.mdx";
 #### Getting Started Pages
 Use existing templates with proper placeholder replacement and maintain the standard flow:
 1. `introduction.mdx` - API overview with feature cards
-2. `identifying-subdomain.mdx` - Subdomain identification
+2. `workspace-subdomain.mdx` - Subdomain identification
 3. `authentication.mdx` - API key setup
-4. `quickstart.mdx` - First API call example
-5. `pagination.mdx` - Pagination handling
-6. `response-codes.mdx` - HTTP status codes
+4. `pagination.mdx` - Pagination handling
+5. `response-codes.mdx` - HTTP status codes
 
 ### Team Members API Pattern
 
@@ -235,7 +233,7 @@ print(data)
 ## Workflow Automation
 
 ### When adding new API feature documentation:
-1. **Create feature directory**: `api-reference/{feature-name}/`
+1. **Create feature directory**: `api/{feature-name}/`
 2. **Create MDX files** for each endpoint:
    - `list-{resources}.mdx` - GET endpoint for listing
    - `create-{resource}.mdx` - POST endpoint for creation
@@ -307,7 +305,7 @@ resource_list_response:
 ## Specific Use Cases
 
 ### Adding a new "Projects" API feature:
-1. **Create directory**: `api-reference/projects/`
+1. **Create directory**: `api/projects/`
 2. **Create files**:
    - `list-projects.mdx` - GET `/projects`
    - `create-project.mdx` - POST `/projects`
@@ -323,11 +321,11 @@ resource_list_response:
      "group": "Projects API",
      "icon": "folder",
      "pages": [
-       "api-reference/projects/list-projects",
-       "api-reference/projects/create-project",
-       "api-reference/projects/get-project-details",
-       "api-reference/projects/update-project",
-       "api-reference/projects/update-project-status"
+       "api/projects/list-projects",
+       "api/projects/create-project",
+       "api/projects/get-project-details",
+       "api/projects/update-project",
+       "api/projects/update-project-status"
      ]
    }
    ```

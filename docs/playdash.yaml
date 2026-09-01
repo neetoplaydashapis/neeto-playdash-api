@@ -10,7 +10,7 @@ servers:
     variables:
       your-subdomain:
         default: spinkart
-        description: Replace **spinkart** with your [workspace's subdomain](/getting-started/workspace-subdomain).
+        description: Replace **spinkart** with your [workspace's subdomain](/api/workspace-subdomain).
 
 tags:
   - name: Projects
@@ -351,7 +351,7 @@ paths:
       operationId: listTopErrors
       tags:
         - Top Errors
-      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api-reference/test-entities/list) endpoint with a status filter instead.
+      description: List a run's top errors, with the failing tests grouped by their shared error log and ordered by the number of affected tests, most first. For an exhaustive list of failing tests regardless of error, use the [list test entities](/api/test-entities/list) endpoint with a status filter instead.
       parameters:
         - $ref: "../schemas/common.yaml#/api_key_header"
         - $ref: "../schemas/common.yaml#/accept_header"
