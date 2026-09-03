@@ -24,8 +24,24 @@ It reports whether you are signed in, whether the workspace responds, and which 
     The credential store is empty. Run `neetoplaydash login` and complete the browser sign-in. See [Authentication](/cli/authentication).
   </Accordion>
 
-  <Accordion title="Multiple subdomains authenticated (acme, globex); specify --subdomain or --all.">
-    More than one workspace is signed in, so the CLI cannot pick one for you. Add `--subdomain <name>` to the command. The message lists every signed-in workspace.
+  <Accordion title="Multiple subdomains authenticated (acme, globex); specify --subdomain.">
+    More than one workspace is signed in, so the CLI cannot pick one for you. Add `--subdomain <name>` to the command. The message lists every signed-in workspace. `logout` ends the same message with `specify --subdomain or --all`, because `--all` signs out of every workspace at once.
+  </Accordion>
+
+  <Accordion title="Subdomain not found. Please check that you entered the correct subdomain.">
+    `login` could not find a NeetoPlaydash workspace at the subdomain you gave. The subdomain is the first part of the workspace URL: for `https://acme.neetoplaydash.com` it is `acme`, not the full host.
+  </Accordion>
+
+  <Accordion title="Authentication session expired. Please try again.">
+    The browser sign-in was not completed in time, or was completed after the session had expired. Run `neetoplaydash login` again and finish the sign-in within 2 minutes. `NeetoPlaydash CLI authentication timed out after 2 minutes. Please try again.` means the same thing.
+  </Accordion>
+
+  <Accordion title="Could not connect to NeetoPlaydash. Check your internet connection">
+    The request never reached the workspace. Run `neetoplaydash doctor` to see whether the workspace URL responds, and check `NEETOPLAYDASH_BASE_URL` if you have set it.
+  </Accordion>
+
+  <Accordion title="Flag --project cannot be blank. / Argument &quot;run_id&quot; cannot be blank.">
+    A required flag or positional argument was passed as an empty string, usually from an unset shell variable. Check the variable holds the id you expect.
   </Accordion>
 
   <Accordion title="Not authenticated for &quot;foo&quot;. Authenticated subdomains: acme, globex.">
@@ -37,7 +53,7 @@ It reports whether you are signed in, whether the workspace responds, and which 
   </Accordion>
 
   <Accordion title="A command returns fewer results than the dashboard shows">
-    List commands are paginated and default to a single page. Raise `--page-size` (max 100) or walk the pages with `--page`, using `pagination.total_pages` from the [JSON envelope](/cli/output-formats) to know when to stop.
+    List commands are paginated and default to a single page. Raise `--page-size` (max 50 for `projects list` and `runs list`, 100 for `test-entities list`) or walk the pages with `--page`, using `pagination.total_pages` from the [JSON envelope](/cli/output-formats) to know when to stop. A `--page-size` above the cap prints `Warning: --page-size N is above this command's maximum of M` on stderr, and the server clamps the page to the cap.
   </Accordion>
 
   <Accordion title="A test entity id is refused for a run you know it ran in">
@@ -47,7 +63,23 @@ It reports whether you are signed in, whether the workspace responds, and which 
 
 ## API errors
 
-Errors from the server come back with the server's own message. The HTTP status is the first clue - see [HTTP response codes](/api/response-codes) for what each one means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`.
+Errors from the server come back as `API error (<status>): <message>`, followed by a suggestion for the statuses the CLI recognises:
+
+```text
+API error (404): Not Found
+
+Suggestion: Resource not found. Check the ID and try again.
+```
+
+| Status | Suggestion |
+| --- | --- |
+| 401 | Authentication session expired. Run 'neetoplaydash login' to re-authenticate. |
+| 403 | You do not have permission to perform this action. |
+| 404 | Resource not found. Check the ID and try again. |
+| 422 | Check required fields with 'neetoplaydash &lt;command&gt; --help'. |
+| 429 | Rate limited. Wait and try again. |
+
+The message is the server's own. See [HTTP response codes](/api/response-codes) for what each status means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`. `insights get` returns a 400 with `Invalid date range format` for a date that is not `YYYY-MM-DD`, and `Insights are available only for the most recent 3 months` with the earliest date you may use when `--start-date` is too old.
 
 ## The command runs but the output looks wrong
 

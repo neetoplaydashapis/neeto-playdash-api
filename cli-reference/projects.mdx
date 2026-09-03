@@ -25,11 +25,7 @@ neetoplaydash projects list
 
 <ProjectsListFlags />
 
-<Warning>
-  The `--page-size` help text says 100, but the server caps this endpoint at
-  **50** and silently clamps anything larger. Check `pagination.page_size` in
-  the response for the size actually applied.
-</Warning>
+The server caps this endpoint at 50 records per page. A larger `--page-size` prints a warning on stderr, and the server clamps the page to 50. Check `pagination.page_size` in the response for the size actually applied.
 
 ```json Sample output
 {

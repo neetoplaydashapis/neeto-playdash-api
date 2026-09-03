@@ -87,7 +87,7 @@ neetoplaydash top-errors list kftwnab --project pdqmxlz
 neetoplaydash test-entities get vhrscje --project pdqmxlz --run kftwnab
 ```
 
-Every NeetoPlaydash id is a short alphanumeric string, so a row of bare positionals would give you no way to tell a project from a run. `--project` and `--run` are required wherever they apply, and getting one wrong is a flag error rather than a confusing 404.
+Every NeetoPlaydash id is a short alphanumeric string, so a row of bare positionals would give you no way to tell a project from a run. `--project` and `--run` are required wherever they apply, and getting one wrong is a flag error rather than a confusing 404. The API also accepts a record's UUID wherever it accepts the short id.
 
 `projects list` needs no id at all, and `insights get` and `runs list` take only a project, so those keep a single positional.
 

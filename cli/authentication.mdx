@@ -19,6 +19,8 @@ Authenticated as oliver.smith@example.com on acme.neetoplaydash.com.
 
 If you omit `--subdomain`, the CLI prompts for it.
 
+The CLI also prints the sign-in URL, so you can open it by hand if the browser does not start. Sign-in must finish within 2 minutes. After that the CLI exits with a timeout error, and you run `login` again.
+
 <Tip>
   Your subdomain is the first part of your workspace URL - for
   `https://spinkart.neetoplaydash.com`, the subdomain is `spinkart`. See
@@ -67,6 +69,24 @@ neetoplaydash projects list --subdomain globex
 ```
 
 With one signed-in workspace, it is the default and `--subdomain` stays optional.
+
+## Pointing at another server
+
+The CLI talks to `https://<subdomain>.neetoplaydash.com`. Set `NEETOPLAYDASH_BASE_URL` to send every request, including sign-in, to a staging or local server instead:
+
+<CodeGroup>
+```bash macOS and Linux
+export NEETOPLAYDASH_BASE_URL=http://acme.lvh.me:8980
+neetoplaydash login --subdomain acme
+```
+
+```powershell Windows
+$env:NEETOPLAYDASH_BASE_URL = "http://acme.lvh.me:8980"
+neetoplaydash login --subdomain acme
+```
+</CodeGroup>
+
+The override applies to every signed-in subdomain while it is set, and every command sends that subdomain's saved session token to the override host. Set it in the one shell session that needs it rather than in a shell profile, and unset it before you go back to production.
 
 ## Troubleshooting
 

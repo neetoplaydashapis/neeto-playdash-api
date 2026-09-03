@@ -14,6 +14,8 @@ Every command supports four output formats, selected with a global flag. On a TT
 
 When more than one is set, precedence is `--toon` > `--quiet` > `--json` > pretty.
 
+`--subdomain <name>` is the fourth global flag. It picks the signed-in workspace a command targets and does not change the format. See [Working with multiple workspaces](/cli/authentication#working-with-multiple-workspaces).
+
 ## Pretty
 
 The default on a terminal. Lists render as tables, single resources as key-value blocks, and both end with breadcrumbs naming the next command to run.
@@ -71,7 +73,13 @@ Read it as the JSON it stands for: a header such as `projects[3]{id,name,archive
 
 List commands accept `--page` (1-indexed) and `--page-size`. The envelope's `pagination` object always reports `total_records`, `total_pages`, `current_page_number`, and `page_size`, so a script can loop by incrementing `--page` until `current_page_number` equals `total_pages`.
 
-Defaults and caps differ by command, and a `--page-size` above the cap is silently clamped to it. Read `pagination.page_size` in the response to see what you actually got.
+Defaults and caps differ by command. A `--page-size` above the cap prints a warning on stderr, and the server clamps the page to the cap. Read `pagination.page_size` in the response to see what you actually got.
+
+```text
+Warning: --page-size 200 is above this command's maximum of 50; the server returns at most 50 records per page.
+```
+
+The CLI sends `page_size` only when you pass `--page-size`, so the flag's own default shows as `0` in the reference tables. The defaults below are what the server applies when the flag is absent.
 
 | Command | Default | Maximum |
 | --- | --- | --- |

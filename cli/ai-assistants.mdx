@@ -9,9 +9,9 @@ description: "Teach Claude Code, Cursor, Copilot, and other assistants how to dr
 neetoplaydash setup claude      # Register the plugin with Claude Code
 neetoplaydash setup cursor      # Write .cursor/rules/neetoplaydash.mdc
 neetoplaydash setup windsurf    # Write .windsurf/rules/neetoplaydash.md
-neetoplaydash setup copilot     # Append to .github/copilot-instructions.md
-neetoplaydash setup gemini      # Append to GEMINI.md
-neetoplaydash setup codex       # Append to AGENTS.md
+neetoplaydash setup copilot     # Add a section to .github/copilot-instructions.md
+neetoplaydash setup gemini      # Add a section to GEMINI.md
+neetoplaydash setup codex       # Add a section to AGENTS.md
 ```
 
 You only need the ones you actually use. Each writes the same body of guidance in the format that assistant reads.
@@ -21,17 +21,19 @@ You only need the ones you actually use. Each writes the same body of guidance i
 | Command | Target | Scope |
 | --- | --- | --- |
 | `setup claude` | `~/.config/neetoplaydash/claude-plugin` | Extracted plugin, installed from Claude Code |
-| `setup cursor` | `.cursor/rules/neetoplaydash.mdc` | Current project |
-| `setup windsurf` | `.windsurf/rules/neetoplaydash.md` | Current project |
-| `setup copilot` | `.github/copilot-instructions.md` | Current project, appended |
-| `setup gemini` | `GEMINI.md` | Current project, appended |
-| `setup codex` | `AGENTS.md` | Current project, appended |
+| `setup cursor` | `.cursor/rules/neetoplaydash.mdc` | Current project, whole file |
+| `setup windsurf` | `.windsurf/rules/neetoplaydash.md` | Current project, whole file |
+| `setup copilot` | `.github/copilot-instructions.md` | Current project, one section |
+| `setup gemini` | `GEMINI.md` | Current project, one section |
+| `setup codex` | `AGENTS.md` | Current project, one section |
 
-The four project-scoped targets are files in your repository. Check them in if you want the whole team's assistants to pick up the same guidance.
+The five project-scoped targets are files in your repository. Check them in if you want the whole team's assistants to pick up the same guidance.
+
+`setup cursor` and `setup windsurf` own their file and overwrite it on every run. `setup copilot`, `setup gemini`, and `setup codex` keep whatever the file already holds and write the guidance between `<!-- neetoplaydash:start -->` and `<!-- neetoplaydash:end -->` marker lines. Re-running replaces that section instead of adding a second one. If the file has a start marker with no end marker, the command stops and asks you to fix the markers.
 
 ## Claude Code
 
-`setup claude` extracts the plugin rather than installing it, because Claude Code installs plugins through interactive slash commands. It prints the two commands to paste:
+`setup claude` extracts the plugin rather than installing it, because Claude Code installs plugins through interactive slash commands. It needs `~/.claude` to exist, which Claude Code creates the first time it runs; if the directory is missing, the command stops with `Claude Code not found (~/.claude/ does not exist).` It replaces `~/.config/neetoplaydash/claude-plugin` on every run, so re-running after an upgrade refreshes the plugin. It prints the two commands to paste:
 
 ```bash
 neetoplaydash setup claude

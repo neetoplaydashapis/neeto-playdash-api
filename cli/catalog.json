@@ -79,7 +79,7 @@
             "name": "page-size",
             "type": "int",
             "default": "0",
-            "description": "Items per page (max 100)"
+            "description": "Items per page (max 50)"
           }
         ]
       }
@@ -155,7 +155,7 @@
             "name": "page-size",
             "type": "int",
             "default": "0",
-            "description": "Items per page (max 100)"
+            "description": "Items per page (max 50)"
           },
           {
             "name": "status",

@@ -70,7 +70,7 @@ Checks authentication, API reachability, and the CLI version. Each check runs in
 neetoplaydash version
 ```
 
-Prints the CLI version, commit hash, and build date.
+Prints the CLI version, commit hash, and build date. With `--json` it prints the same fields as an object with the keys `binary`, `version`, `commit`, and `date`.
 
 ```text Sample output
 neetoplaydash 1.0.9 (commit: a1b2c3d, built: 2026-08-05)
@@ -110,7 +110,7 @@ Prints the complete command and flag catalog for the installed version as JSON. 
 neetoplaydash update
 ```
 
-Detects how the CLI was installed and runs the matching upgrade: `brew update && brew upgrade` for a Homebrew install, and the install script otherwise. See [Installation](/cli/installation).
+Detects how the CLI was installed and runs the matching upgrade. On Windows it runs the PowerShell installer. Elsewhere, a binary that lives under a Homebrew `Cellar` directory gets `brew update && brew upgrade`, and any other install re-runs the shell installer, which downloads the latest release and replaces the binary in place. The command it is about to run is printed first. See [Installation](/cli/installation).
 
 ```text Sample output
 Detected Homebrew install.
@@ -144,7 +144,16 @@ To finish installation, open Claude Code and run these slash commands:
 
 Shell completion fills in command names, subcommands, and flags when you press `Tab`. It saves you from having to remember the full command tree or look up `--help`.
 
-`neetoplaydash completion <shell>` installs completion for your shell. It writes a script under `~/.config/neetoplaydash/completions` and configures your shell to load it the next time it starts.
+`neetoplaydash completion <shell>` installs completion for your shell. It writes the completion script and, where the shell needs one, a loader block between `# neetoplaydash completions` and `# end neetoplaydash completions` marker lines in your shell's startup file.
+
+| Shell | Script | Loader |
+| --- | --- | --- |
+| zsh | `~/.config/neetoplaydash/completions/_neetoplaydash` | `~/.zshrc` |
+| bash | `~/.config/neetoplaydash/completions/neetoplaydash.bash` | `~/.bashrc` |
+| fish | `~/.config/fish/completions/neetoplaydash.fish` | none; fish loads the directory itself |
+| powershell | `~/.config/neetoplaydash/completions/neetoplaydash.ps1` | `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1` |
+
+The loader paths are fixed. If your shell reads a different startup file, for example `~/.bash_profile` on macOS, or a PowerShell `$PROFILE` outside `~/Documents/PowerShell` as on Windows PowerShell 5.1 and on macOS and Linux, add a line to that file that sources the script from the table.
 
 <CodeGroup>
 ```bash Zsh
