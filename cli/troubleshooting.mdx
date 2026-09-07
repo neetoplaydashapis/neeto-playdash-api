@@ -79,7 +79,7 @@ Suggestion: Resource not found. Check the ID and try again.
 | 422 | Check required fields with 'neetoplaydash &lt;command&gt; --help'. |
 | 429 | Rate limited. Wait and try again. |
 
-The message is the server's own. See [HTTP response codes](/api/response-codes) for what each status means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`. `insights get` returns a 400 with `Invalid date range format` for a date that is not `YYYY-MM-DD`, and `Insights are available only for the most recent 3 months` with the earliest date you may use when `--start-date` is too old.
+The message is the server's own. See [HTTP response codes](/api/response-codes) for what each status means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`. `insights show` returns a 400 with `Invalid date range format` for a date that is not `YYYY-MM-DD`, and `Insights are available only for the most recent 3 months` with the earliest date you may use when `--start-date` is too old.
 
 ## The command runs but the output looks wrong
 

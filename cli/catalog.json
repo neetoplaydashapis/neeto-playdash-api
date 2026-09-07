@@ -8,7 +8,7 @@
     "description": "View a project's testing insights over a date range",
     "subcommands": [
       {
-        "command": "neetoplaydash insights get",
+        "command": "neetoplaydash insights show",
         "description": "Show a project's daily and overall run and test insights",
         "flags": [
           {
@@ -125,18 +125,6 @@
     "description": "Manage runs",
     "subcommands": [
       {
-        "command": "neetoplaydash runs get",
-        "description": "Show a run with summary, statistics, and specs",
-        "flags": [
-          {
-            "name": "project",
-            "type": "string",
-            "description": "Id of the project the resource belongs to",
-            "required": true
-          }
-        ]
-      },
-      {
         "command": "neetoplaydash runs list",
         "description": "List runs for a project",
         "flags": [
@@ -161,6 +149,18 @@
             "name": "status",
             "type": "string",
             "description": "Filter runs by status (e.g. passed, failed, running)"
+          }
+        ]
+      },
+      {
+        "command": "neetoplaydash runs show",
+        "description": "Show a run with summary, statistics, and specs",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
           }
         ]
       }
@@ -201,24 +201,6 @@
     "description": "Manage test entities (specs and tests)",
     "subcommands": [
       {
-        "command": "neetoplaydash test-entities get",
-        "description": "Show a test entity with outcomes and attempts",
-        "flags": [
-          {
-            "name": "project",
-            "type": "string",
-            "description": "Id of the project the resource belongs to",
-            "required": true
-          },
-          {
-            "name": "run",
-            "type": "string",
-            "description": "Id of the run the resource belongs to",
-            "required": true
-          }
-        ]
-      },
-      {
         "command": "neetoplaydash test-entities list",
         "description": "List test entities for a run",
         "flags": [
@@ -249,6 +231,24 @@
             "name": "status",
             "type": "string",
             "description": "Comma-separated statuses to filter by (e.g. failed,flaky)"
+          }
+        ]
+      },
+      {
+        "command": "neetoplaydash test-entities show",
+        "description": "Show a test entity with outcomes and attempts",
+        "flags": [
+          {
+            "name": "project",
+            "type": "string",
+            "description": "Id of the project the resource belongs to",
+            "required": true
+          },
+          {
+            "name": "run",
+            "type": "string",
+            "description": "Id of the run the resource belongs to",
+            "required": true
           }
         ]
       }

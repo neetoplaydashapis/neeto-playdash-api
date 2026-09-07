@@ -3,7 +3,7 @@ title: "insights"
 description: "Read a project's run and test trends over a date range."
 ---
 
-import InsightsGetFlags from '/snippets/cli/insights/get.mdx'
+import InsightsShowFlags from '/snippets/cli/insights/show.mdx'
 
 Where `runs` and `test-entities` tell you about one execution, `insights` aggregates across many: how many runs passed each day, how long they took, and how the test results split between passed, failed, skipped, flaky, and timed out. It answers "is this suite getting better or worse?" rather than "what broke last night?".
 
@@ -15,19 +15,20 @@ For fields and response details, see the [API reference](/api/insights/get).
   printer would collapse the nested payload. See [Output formats](/cli/output-formats).
 </Note>
 
-## insights get
+## insights show
 
-Shows the project's daily and overall run and test insights for a date range.
+Shows the project's daily and overall run and test insights for a date range. `get` is
+still accepted as an alias for `show`.
 
 ### Required arguments
 
 - `<project_id>` - the project to report on, from [`projects list`](/cli-reference/projects).
 
 ```bash
-neetoplaydash insights get pdqmxlz --start-date 2026-07-15 --branch main
+neetoplaydash insights show pdqmxlz --start-date 2026-07-15 --branch main
 ```
 
-<InsightsGetFlags />
+<InsightsShowFlags />
 
 ### The date range
 
@@ -44,7 +45,7 @@ The response always reports the `start_date` and `end_date` actually used, so yo
 `--branch`, `--author`, and `--tags` narrow which runs are counted, and the test figures follow the same runs. `--tags` is a comma-separated list and matches runs carrying **every** tag listed, not any of them.
 
 ```bash
-neetoplaydash insights get pdqmxlz --tags nightly,smoke --timezone America/New_York
+neetoplaydash insights show pdqmxlz --tags nightly,smoke --timezone America/New_York
 ```
 
 ```json Sample output

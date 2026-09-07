@@ -4,7 +4,7 @@ description: "List a project's test runs and read one in full."
 ---
 
 import RunsListFlags from '/snippets/cli/runs/list.mdx'
-import RunsGetFlags from '/snippets/cli/runs/get.mdx'
+import RunsShowFlags from '/snippets/cli/runs/show.mdx'
 
 A run is one execution of a project's Playwright suite, reported by CI. Runs carry the commit, branch, author, tags, and status, plus the aggregate pass/fail counts.
 
@@ -57,7 +57,7 @@ The server caps this endpoint at 50 records per page. A larger `--page-size` pri
     }
   ],
   "breadcrumbs": [
-    { "label": "Show run", "command": "neetoplaydash runs get <run_id> --project <project_id>" },
+    { "label": "Show run", "command": "neetoplaydash runs show <run_id> --project <project_id>" },
     { "label": "List test entities", "command": "neetoplaydash test-entities list <run_id> --project <project_id>" }
   ],
   "pagination": {
@@ -71,9 +71,9 @@ The server caps this endpoint at 50 records per page. A larger `--page-size` pri
 
 Every run the project holds is listed, including one that reported no test attempts at all. Such a run still carries its commit, branch, and status, but its `run_statistics` is empty and `test-entities list` reports nothing for it.
 
-## runs get
+## runs show
 
-Shows one run with its summary, aggregate statistics, and the spec files it executed, each with the tests grouped under it. Use it when you want the shape of a whole run in a single call rather than paging through its test entities.
+Shows one run with its summary, aggregate statistics, and the spec files it executed, each with the tests grouped under it. Use it when you want the shape of a whole run in a single call rather than paging through its test entities. `get` is still accepted as an alias for `show`.
 
 ### Required arguments
 
@@ -81,10 +81,10 @@ Shows one run with its summary, aggregate statistics, and the spec files it exec
 - `--project <project_id>` - the project the run belongs to.
 
 ```bash
-neetoplaydash runs get kftwnab --project pdqmxlz
+neetoplaydash runs show kftwnab --project pdqmxlz
 ```
 
-<RunsGetFlags />
+<RunsShowFlags />
 
 ```json Sample output
 {

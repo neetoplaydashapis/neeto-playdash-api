@@ -4,7 +4,7 @@ description: "List the specs and tests a run recorded, and read one in full."
 ---
 
 import TestEntitiesListFlags from '/snippets/cli/test-entities/list.mdx'
-import TestEntitiesGetFlags from '/snippets/cli/test-entities/get.mdx'
+import TestEntitiesShowFlags from '/snippets/cli/test-entities/show.mdx'
 
 A test entity is either a **spec** file or an individual **test**, selected with `--kind`. Only a test runs, so only a test has outcomes and attempts. A spec is the file its tests live in, so reading one returns the tests it contains rather than outcomes.
 
@@ -48,7 +48,7 @@ neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status 
   "breadcrumbs": [
     {
       "label": "Show test entity",
-      "command": "neetoplaydash test-entities get <test_entity_id> --project <project_id> --run <run_id>"
+      "command": "neetoplaydash test-entities show <test_entity_id> --project <project_id> --run <run_id>"
     }
   ],
   "pagination": {
@@ -62,9 +62,9 @@ neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status 
 
 For a spec, `title` is the file name.
 
-## test-entities get
+## test-entities show
 
-Shows one test entity with everything the run recorded for it. For a **test** that means the outcomes, the attempts inside each outcome, the Playwright error output, and time-limited links to the screenshots, videos, traces, and Lighthouse reports captured. For a **spec** it means the list of tests the run recorded in that file.
+Shows one test entity with everything the run recorded for it. For a **test** that means the outcomes, the attempts inside each outcome, the Playwright error output, and time-limited links to the screenshots, videos, traces, and Lighthouse reports captured. For a **spec** it means the list of tests the run recorded in that file. `get` is still accepted as an alias for `show`.
 
 ### Required arguments
 
@@ -73,10 +73,10 @@ Shows one test entity with everything the run recorded for it. For a **test** th
 - `--run <run_id>` - the run the entity was recorded in.
 
 ```bash
-neetoplaydash test-entities get vhrscje --project pdqmxlz --run kftwnab
+neetoplaydash test-entities show vhrscje --project pdqmxlz --run kftwnab
 ```
 
-<TestEntitiesGetFlags />
+<TestEntitiesShowFlags />
 
 ```json Sample output
 {

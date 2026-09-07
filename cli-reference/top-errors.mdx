@@ -51,13 +51,13 @@ neetoplaydash top-errors list kftwnab --project pdqmxlz
   "breadcrumbs": [
     {
       "label": "Show test entity",
-      "command": "neetoplaydash test-entities get <test_entity_id> --project <project_id> --run <run_id>"
+      "command": "neetoplaydash test-entities show <test_entity_id> --project <project_id> --run <run_id>"
     }
   ]
 }
 ```
 
-`test_entity_ids` names every test in the group. `test_entities` describes a capped subset of them, so on a large group the two differ in length - read any test beyond the described ones with [`test-entities get`](/cli-reference/test-entities). The pretty format makes this explicit by printing a `+N more` line with the remaining ids.
+`test_entity_ids` names every test in the group. `test_entities` describes a capped subset of them, so on a large group the two differ in length - read any test beyond the described ones with [`test-entities show`](/cli-reference/test-entities) (`get` still works as an alias). The pretty format makes this explicit by printing a `+N more` line with the remaining ids.
 
 The error log is the grouping key with Playwright's per-test `Call log:` section stripped, which is what lets tests that failed the same way land in the same group.
 
