@@ -1,39 +1,31 @@
 ---
-title: "test-entities"
+title: "Test entities"
 description: "List the specs and tests a run recorded, and read one in full."
 ---
 
 import TestEntitiesListFlags from '/snippets/cli/test-entities/list.mdx'
 import TestEntitiesShowFlags from '/snippets/cli/test-entities/show.mdx'
 
-A test entity is either a **spec** file or an individual **test**, selected with `--kind`. Only a test runs, so only a test has outcomes and attempts. A spec is the file its tests live in, so reading one returns the tests it contains rather than outcomes.
+A test entity is either a **spec** file or an individual **test**, selected with `--kind`. Only a test runs, so only a test has outcomes and attempts. A spec is the file its tests live in, so reading one returns the tests it contains rather than outcomes. For fields and response details, see the [API reference](/api/test-entities/list).
 
-For fields and response details, see the [API reference](/api/test-entities/list).
+## List test entities
 
-<Note>
-  Sample output on this page uses `--json`. Pretty tables pick their columns
-  from the payload and the terminal width, so they are not reproducible; the
-  JSON envelope is. See [Output formats](/cli/output-formats).
-</Note>
-
-## test-entities list
-
-Lists the specs or tests a run recorded. Filter to the failing ones to go straight from a red run to the tests that made it red.
-
-### Required arguments
-
-- `<run_id>` - the run whose entities to list, from [`runs list`](/cli-reference/runs).
-- `--project <project_id>` - the project the run belongs to.
+This command lists the specs or tests a run recorded. Use this when you want to go straight from a red run to the tests that made it red.
 
 ```bash
 neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status failed,flaky
 ```
 
+**Required arguments:**
+
+- `<run_id>` - the run whose entities to list, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
 <TestEntitiesListFlags />
 
 `--kind` is `spec` when omitted. `--status` takes a comma-separated list, each member exactly one of `passed`, `failed`, `interrupted`, `timed_out`, `skipped`, `not_run`, `flaky`, `passing`, `failing`, `running`, `pending`. This command defaults to 25 records per page rather than 15.
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {
@@ -62,23 +54,23 @@ neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status 
 
 For a spec, `title` is the file name.
 
-## test-entities show
+## Show a test entity
 
-Shows one test entity with everything the run recorded for it. For a **test** that means the outcomes, the attempts inside each outcome, the Playwright error output, and time-limited links to the screenshots, videos, traces, and Lighthouse reports captured. For a **spec** it means the list of tests the run recorded in that file. `get` is still accepted as an alias for `show`.
-
-### Required arguments
-
-- `<test_entity_id>` - the entity to show, from [`test-entities list`](#test-entities-list).
-- `--project <project_id>` - the project the run belongs to.
-- `--run <run_id>` - the run the entity was recorded in.
+This command shows one test entity with everything the run recorded for it. For a **test** that means the outcomes, the attempts inside each outcome, the Playwright error output, and time-limited links to the screenshots, videos, traces, and Lighthouse reports captured. For a **spec** it means the list of tests the run recorded in that file. `get` is still accepted as an alias for `show`.
 
 ```bash
 neetoplaydash test-entities show vhrscje --project pdqmxlz --run kftwnab
 ```
 
+**Required arguments:**
+
+- `<test_entity_id>` - the entity to show, from [`test-entities list`](#list-test-entities).
+- `--project <project_id>` - the project the run belongs to.
+- `--run <run_id>` - the run the entity was recorded in.
+
 <TestEntitiesShowFlags />
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": {
     "title": "adds an item to the cart",

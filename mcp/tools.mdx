@@ -1,35 +1,13 @@
 ---
 title: "Tools"
-description: "Every tool the NeetoPlaydash MCP server exposes."
+description: "Every tool the NeetoPlaydash MCP server exposes, grouped by resource."
 ---
 
-The server exposes ten tools. All of them are reads - none creates, changes, or deletes anything.
+You do not need these names to use the server. Ask in plain language and the assistant picks the right tool. The list is here for when you want to know exactly what a connection can do. Most tools match a [REST API](/api/introduction) endpoint and link to its reference. The server exposes eleven tools.
 
-You do not need to call these by name. Describe what you want and the assistant picks; the list is here so you know what is reachable.
+Every tool takes an optional `workspace` argument, the subdomain of a connected workspace. Left out, it runs against the workspace the connection was set up with. `ListWorkspaces` reports the values you can pass.
 
-## Projects and runs
-
-| Tool | What it does | API reference |
-| --- | --- | --- |
-| `ListProjects` | Lists the workspace's projects with their id, name, and archived flag. | [List projects](/api/projects/list) |
-| `ListRuns` | Lists a project's runs, newest first, filterable by `branch` and `status`. Returns commit details, author, tags, duration, and aggregate statistics. | [List runs](/api/runs/list) |
-| `GetRun` | Reads one run: commit details, branch, author, tags, status, duration, shard count, and aggregate statistics. | [Get a run](/api/runs/get) |
-| `GetProjectInsights` | Aggregates a project's runs and test results by day over a date range, with overall totals. Narrows to a `branch`, an `author`, or runs carrying every given tag. | [Get project insights](/api/insights/get) |
-
-## Tests
-
-| Tool | What it does | API reference |
-| --- | --- | --- |
-| `ListTestEntities` | Lists a run's specs or tests, chosen with `kind`, filterable by `status`. Returns each entity's id, title, status, duration, start time, and test count. | [List test entities](/api/test-entities/list) |
-| `GetTestEntity` | Reads one entity. For a test: its outcomes, the attempts inside each, the Playwright error output, and links to captured artifacts. For a spec: the tests the run recorded in that file. | [Get a test entity](/api/test-entities/get) |
-
-## Failures and history
-
-| Tool | What it does | API reference |
-| --- | --- | --- |
-| `GetTopErrors` | Groups a run's failing tests by their shared error log, ordered by how many tests each error affected. Returns at most 20 groups. | [List top errors](/api/top-errors/list) |
-| `GetResultHistories` | Reports how one test entity behaved across earlier runs in a look-back window, with the commit and branch of each run. | [List result histories](/api/result-histories/list) |
-| `GetTraces` | Returns Playwright trace viewer links for a run, or for one test entity. | [List traces](/api/traces/list) |
+What a tool returns depends on the credential. An [OAuth](/mcp/authentication#oauth-scoped-to-the-workspaces-you-approve) connection reads everything in each workspace you approved; an [API key](/mcp/authentication#api-key-scoped-to-the-workspace) reaches the whole workspace it belongs to. `CreateProject` is the only tool that changes data, and it is refused when the connection was not granted the **Create and update** permission.
 
 ## Workspaces
 
@@ -37,15 +15,36 @@ You do not need to call these by name. Describe what you want and the assistant 
 | --- | --- |
 | `ListWorkspaces` | Lists the workspaces this connection may read. Use the subdomain it returns as the `workspace` argument on any other tool. |
 
-`ListWorkspaces` has no API equivalent - the REST API is always scoped to the single workspace in the request URL.
+`ListWorkspaces` has no REST endpoint, which is why it is not linked. The REST API is always scoped to the single workspace in the request URL.
 
-## Arguments every tool accepts
+## Projects and runs
 
-| Argument | Meaning |
+| Tool | What it does |
 | --- | --- |
-| `workspace` | Subdomain of the workspace to run against. Defaults to the primary connected workspace. |
+| [`ListProjects`](/api/projects/list) | Lists the workspace's projects with their id, name, and archived flag. |
+| `CreateProject` | Creates a project with the given `name`, which must be unique in the workspace. Returns the new project's id, name, archived flag, and creation time. |
+| [`ListRuns`](/api/runs/list) | Lists a project's runs, newest first, filterable by `branch` and `status`. Returns commit details, author, tags, duration, and aggregate statistics. |
+| [`GetRun`](/api/runs/get) | Reads one run: commit details, branch, author, tags, status, duration, shard count, and aggregate statistics. |
+| [`GetProjectInsights`](/api/insights/get) | Aggregates a project's runs and test results by day over a date range, with overall totals. Narrows to a `branch`, an `author`, or runs carrying every given tag. |
 
-Tools that return lists also take `page` and `page_size`. `GetProjectInsights` is not paginated; it takes `start_date`, `end_date`, and `timezone` instead, covers the most recent 3 months, and refuses an older `start_date` rather than clamping it. Identifiers are the short alphanumeric segments of a NeetoPlaydash admin URL: in `https://acme.neetoplaydash.com/admin/projects/pdqmxlz/runs/kftwnab/test_entities/vhrscje`, `pdqmxlz` is the `project_id`, `kftwnab` the `run_id`, and `vhrscje` the `test_entity_id`.
+## Tests
+
+| Tool | What it does |
+| --- | --- |
+| [`ListTestEntities`](/api/test-entities/list) | Lists a run's specs or tests, chosen with `kind`, filterable by `status`. Returns each entity's id, title, status, duration, start time, and test count. |
+| [`GetTestEntity`](/api/test-entities/get) | Reads one entity. For a test: its outcomes, the attempts inside each, the Playwright error output, and links to captured artifacts. For a spec: the tests the run recorded in that file. |
+
+## Failures and history
+
+| Tool | What it does |
+| --- | --- |
+| [`GetTopErrors`](/api/top-errors/list) | Groups a run's failing tests by their shared error log, ordered by how many tests each error affected. Returns at most 20 groups. |
+| [`GetResultHistories`](/api/result-histories/list) | Reports how one test entity behaved across earlier runs in a look-back window, with the commit and branch of each run. |
+| [`GetTraces`](/api/traces/list) | Returns Playwright trace viewer links for a run, or for one test entity. |
+
+## Paging and identifiers
+
+
 
 ## Response format
 

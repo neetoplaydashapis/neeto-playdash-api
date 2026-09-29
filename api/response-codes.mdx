@@ -1,20 +1,12 @@
 ---
 title: "HTTP response codes"
-description: "Learn about the HTTP status codes returned by the API."
+description: "Learn about the HTTP status codes returned by the NeetoPlaydash API."
 ---
 
 ## Success codes
 
 <ResponseField name='200 OK'>
   The request was successful and the server returned the requested data.
-</ResponseField>
-
-<ResponseField name='201 Created'>
-  The request was successful and a new resource was created. Returned for POST requests that create new resources.
-</ResponseField>
-
-<ResponseField name='204 No Content'>
-  The request was successful but there is no content to return. Typically returned for DELETE operations.
 </ResponseField>
 
 ## Error codes
@@ -45,7 +37,7 @@ description: "Learn about the HTTP status codes returned by the API."
   - Workspace subdomain is incorrect.
 </ResponseField>
 
-<ResponseField name='422 Unprocessable entity'>
+<ResponseField name='422 Unprocessable Entity'>
   The given request could not be processed by the server due to malformed
   request. Check the request body once again.
 </ResponseField>
@@ -80,8 +72,7 @@ When an error occurs, the API returns a JSON response with error details:
 </ResponseField>
 
 <Tip>
-  When debugging API issues, the HTTP status
-  code often provides
-  the first clue about what went wrong. Start by checking the status code before
-  diving into the response body.
+  When debugging API issues, the HTTP status code often provides the first clue
+  about what went wrong. Start by checking the status code before diving into
+  the response body.
 </Tip>

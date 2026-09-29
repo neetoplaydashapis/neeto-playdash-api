@@ -1,6 +1,6 @@
 ---
 title: "Utility commands"
-description: "Authentication, diagnostics, updates, AI-assistant setup, and shell completion."
+description: "Authentication, diagnostics, versioning, upgrades, AI-assistant setup, and shell completion."
 ---
 
 import LogoutFlags from '/snippets/cli/logout.mdx'
@@ -15,10 +15,10 @@ These commands manage the CLI itself rather than a NeetoPlaydash resource.
 neetoplaydash login --subdomain your-workspace
 ```
 
-Opens your browser to sign in and saves credentials for the workspace. Omit `--subdomain` to be prompted. See [Authentication](/cli/authentication).
+Opens your browser to sign in and saves credentials for the workspace. Omit `--subdomain` to be prompted.
 
 ```text Sample output
-Authenticated as oliver.smith@example.com on acme.neetoplaydash.com.
+Authenticated as oliver@example.com on acme.neetoplaydash.com.
 ```
 
 ### logout
@@ -27,8 +27,6 @@ Authenticated as oliver.smith@example.com on acme.neetoplaydash.com.
 neetoplaydash logout --subdomain your-workspace
 neetoplaydash logout --all
 ```
-
-With exactly one workspace signed in, `neetoplaydash logout` on its own removes it. With several, pass `--subdomain` or `--all`.
 
 <LogoutFlags />
 
@@ -45,7 +43,7 @@ neetoplaydash whoami
 Lists each signed-in account and marks it `(default)` when only one is signed in. Pass `--subdomain <name>` to show one workspace.
 
 ```text Sample output
-Authenticated as oliver.smith@example.com on acme.neetoplaydash.com (default).
+Authenticated as oliver@example.com on acme.neetoplaydash.com (default).
 ```
 
 ## Diagnostics
@@ -56,12 +54,12 @@ Authenticated as oliver.smith@example.com on acme.neetoplaydash.com (default).
 neetoplaydash doctor
 ```
 
-Checks authentication, API reachability, and the CLI version. Each check runs independently, so one failure does not hide the next. When several workspaces are signed in, pass `--subdomain <name>`. See [Troubleshooting](/cli/troubleshooting).
+Checks authentication, API reachability, and the CLI version. See [Troubleshooting](/cli/troubleshooting). When several workspaces are signed in, pass `--subdomain <name>`.
 
 ```text Sample output
-✓ Authentication: authenticated as oliver.smith@example.com on acme.neetoplaydash.com
+✓ Authentication: authenticated as oliver@example.com on acme.neetoplaydash.com
 ✓ API connection: https://acme.neetoplaydash.com (responding in 214ms)
-✓ CLI version: 1.0.9
+✓ CLI version: 1.4.0
 ```
 
 ### version
@@ -70,10 +68,10 @@ Checks authentication, API reachability, and the CLI version. Each check runs in
 neetoplaydash version
 ```
 
-Prints the CLI version, commit hash, and build date. With `--json` it prints the same fields as an object with the keys `binary`, `version`, `commit`, and `date`.
+Prints the CLI version, commit hash, and build date.
 
 ```text Sample output
-neetoplaydash 1.0.9 (commit: a1b2c3d, built: 2026-08-05)
+neetoplaydash 1.4.0 (commit: a1b2c3d, built: 2026-07-01)
 ```
 
 ### commands
@@ -82,7 +80,7 @@ neetoplaydash 1.0.9 (commit: a1b2c3d, built: 2026-08-05)
 neetoplaydash commands
 ```
 
-Prints the complete command and flag catalog for the installed version as JSON. It is useful in scripts and with AI assistants, and it is the source this reference is generated from.
+Prints the complete command and flag catalog for the installed version as JSON. It is useful in scripts and with AI assistants.
 
 ```json Sample output
 [
@@ -102,7 +100,7 @@ Prints the complete command and flag catalog for the installed version as JSON. 
 ]
 ```
 
-## Updating
+## Upgrade
 
 ### update
 
@@ -110,16 +108,18 @@ Prints the complete command and flag catalog for the installed version as JSON. 
 neetoplaydash update
 ```
 
-Detects how the CLI was installed and runs the matching upgrade. On Windows it runs the PowerShell installer. Elsewhere, a binary that lives under a Homebrew `Cellar` directory gets `brew update && brew upgrade`, and any other install re-runs the shell installer, which downloads the latest release and replaces the binary in place. The command it is about to run is printed first. See [Installation](/cli/installation).
+Updates the CLI to the latest release using the method that installed it. When the binary lives in a Homebrew Cellar it runs `brew update && brew upgrade neetozone/tap/neetoplaydash`; on other macOS and Linux installs it downloads the shell installer to a temporary file and runs it; on Windows it runs the PowerShell installer. The installers are the same ones the [Installation](/cli/installation) page uses, fetched over HTTPS. The command prints the detected method and the command it runs, and exits non-zero if that command fails.
 
 ```text Sample output
 Detected Homebrew install.
 Running: brew update && brew upgrade neetozone/tap/neetoplaydash
 ```
 
+After upgrading, re-run `neetoplaydash completion <shell>` and any `neetoplaydash setup` command you use so their files match the new version.
+
 ## AI-assistant setup
 
-Add NeetoPlaydash instructions to your AI coding assistant. See [AI assistants](/cli/ai-assistants) for what each command writes and where.
+Add NeetoPlaydash instructions to your AI coding assistant. See [AI assistants](/cli/ai-assistants) for details.
 
 ```bash
 neetoplaydash setup claude
@@ -144,16 +144,7 @@ To finish installation, open Claude Code and run these slash commands:
 
 Shell completion fills in command names, subcommands, and flags when you press `Tab`. It saves you from having to remember the full command tree or look up `--help`.
 
-`neetoplaydash completion <shell>` installs completion for your shell. It writes the completion script and, where the shell needs one, a loader block between `# neetoplaydash completions` and `# end neetoplaydash completions` marker lines in your shell's startup file.
-
-| Shell | Script | Loader |
-| --- | --- | --- |
-| zsh | `~/.config/neetoplaydash/completions/_neetoplaydash` | `~/.zshrc` |
-| bash | `~/.config/neetoplaydash/completions/neetoplaydash.bash` | `~/.bashrc` |
-| fish | `~/.config/fish/completions/neetoplaydash.fish` | none; fish loads the directory itself |
-| powershell | `~/.config/neetoplaydash/completions/neetoplaydash.ps1` | `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1` |
-
-The loader paths are fixed. If your shell reads a different startup file, for example `~/.bash_profile` on macOS, or a PowerShell `$PROFILE` outside `~/Documents/PowerShell` as on Windows PowerShell 5.1 and on macOS and Linux, add a line to that file that sources the script from the table.
+`neetoplaydash completion <shell>` installs completion for your shell. For zsh, bash, and PowerShell it writes the script under `~/.config/neetoplaydash/completions` and adds a marked block to `~/.zshrc`, `~/.bashrc`, or `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1` that loads it the next time the shell starts. For fish it writes `~/.config/fish/completions/neetoplaydash.fish`, which fish loads on its own.
 
 <CodeGroup>
 ```bash Zsh

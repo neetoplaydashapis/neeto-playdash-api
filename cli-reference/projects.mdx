@@ -1,23 +1,15 @@
 ---
-title: "projects"
+title: "Projects"
 description: "List the projects in a workspace."
 ---
 
 import ProjectsListFlags from '/snippets/cli/projects/list.mdx'
 
-A project is the top of the resource tree: it owns the runs, which own the test entities. Every other command takes a project id as its first positional argument, and `projects list` is where you get one.
+A project is the top of the resource tree: it owns the runs, which own the test entities. Every other command takes a project id, and `projects list` is where you get one. For fields and response details, see the [API reference](/api/projects/list).
 
-For fields and response details, see the [API reference](/api/projects/list).
+## List projects
 
-<Note>
-  Sample output on this page uses `--json`. Pretty tables pick their columns
-  from the payload and the terminal width, so they are not reproducible; the
-  JSON envelope is. See [Output formats](/cli/output-formats).
-</Note>
-
-## projects list
-
-Lists every project in the workspace, newest first. Use it to find the `project_id` that the `runs`, `test-entities`, `traces`, `top-errors`, and `result-histories` commands need.
+This command lists every project in the workspace, newest first. Use this when you want to find the `project_id` that the `runs`, `test-entities`, `traces`, `top-errors`, and `result-histories` commands need.
 
 ```bash
 neetoplaydash projects list
@@ -25,9 +17,9 @@ neetoplaydash projects list
 
 <ProjectsListFlags />
 
-The server caps this endpoint at 50 records per page. A larger `--page-size` prints a warning on stderr, and the server clamps the page to 50. Check `pagination.page_size` in the response for the size actually applied.
+The server caps this endpoint at 50 records per page. A larger `--page-size` prints a warning on standard error, and the server clamps the page to 50. Check `pagination.page_size` in the response for the size actually applied.
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {

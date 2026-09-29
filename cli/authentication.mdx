@@ -3,7 +3,7 @@ title: "Authentication"
 description: "Sign in through the browser and manage credentials for one or more workspaces."
 ---
 
-The CLI uses your browser to sign you in and saves the session locally, so you never need to enter an API key.
+The CLI uses your browser to sign you in and securely saves your session, so you never need to enter an API key.
 
 ## Sign in
 
@@ -11,15 +11,7 @@ The CLI uses your browser to sign you in and saves the session locally, so you n
 neetoplaydash login --subdomain your-workspace
 ```
 
-Your browser opens to complete sign-in. Once you approve it, the CLI saves credentials for that subdomain and prints the account it signed in as:
-
-```
-Authenticated as oliver.smith@example.com on acme.neetoplaydash.com.
-```
-
-If you omit `--subdomain`, the CLI prompts for it.
-
-The CLI also prints the sign-in URL, so you can open it by hand if the browser does not start. Sign-in must finish within 2 minutes. After that the CLI exits with a timeout error, and you run `login` again.
+Your browser opens to complete sign-in. The CLI also prints the sign-in URL in case the browser does not open, and waits up to five minutes for you to approve. Once you approve it, the CLI saves credentials for that subdomain. If you omit `--subdomain`, the CLI prompts for it.
 
 <Tip>
   Your subdomain is the first part of your workspace URL - for
@@ -31,7 +23,7 @@ The CLI also prints the sign-in URL, so you can open it by hand if the browser d
 
 Credentials for every signed-in workspace live in a single file:
 
-```
+```text
 ~/.config/neetoplaydash/auth.json
 ```
 
@@ -61,7 +53,7 @@ You can sign in to several subdomains at once. To add another workspace, name it
 neetoplaydash login --subdomain globex
 ```
 
-When more than one workspace is signed in, every command that talks to the API requires `--subdomain`, including `doctor`. If you omit it, the CLI errors and lists the signed-in workspaces.
+When more than one workspace is signed in, every command that talks to the API requires `--subdomain`. If you omit it, the CLI errors and lists the signed-in workspaces.
 
 ```bash
 neetoplaydash projects list --subdomain acme
@@ -70,23 +62,14 @@ neetoplaydash projects list --subdomain globex
 
 With one signed-in workspace, it is the default and `--subdomain` stays optional.
 
-## Pointing at another server
+## Environment variables
 
-The CLI talks to `https://<subdomain>.neetoplaydash.com`. Set `NEETOPLAYDASH_BASE_URL` to send every request, including sign-in, to a staging or local server instead:
+`NEETOPLAYDASH_BASE_URL` overrides the server the CLI talks to. By default every command, including `login`, uses `https://<subdomain>.neetoplaydash.com`. Set the variable to point the CLI at a staging or local server. Every request, including the session token saved in `~/.config/neetoplaydash/auth.json`, goes to that server, so only point it at a server you trust:
 
-<CodeGroup>
-```bash macOS and Linux
-export NEETOPLAYDASH_BASE_URL=http://acme.lvh.me:8980
+```bash
+export NEETOPLAYDASH_BASE_URL=https://acme.neetoplaydash.net
 neetoplaydash login --subdomain acme
 ```
-
-```powershell Windows
-$env:NEETOPLAYDASH_BASE_URL = "http://acme.lvh.me:8980"
-neetoplaydash login --subdomain acme
-```
-</CodeGroup>
-
-The override applies to every signed-in subdomain while it is set, and every command sends that subdomain's saved session token to the override host. Set it in the one shell session that needs it rather than in a shell profile, and unset it before you go back to production.
 
 ## Troubleshooting
 

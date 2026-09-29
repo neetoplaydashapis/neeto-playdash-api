@@ -7,15 +7,16 @@ Install the `neetoplaydash` binary with the command for your platform, then [ver
 
 <CodeGroup>
 ```bash macOS
+brew trust neetozone/tap
 brew install neetozone/tap/neetoplaydash
 ```
 
 ```bash Linux
-curl -fsSL https://neetoplaydash.com/cli/install.sh | sh
+curl -fsSL https://neeto-downloads.s3.amazonaws.com/cli/NeetoPlaydash/latest/install.sh | sh
 ```
 
 ```powershell Windows
-irm https://neetoplaydash.com/cli/install.ps1 | iex
+irm https://neeto-downloads.s3.amazonaws.com/cli/NeetoPlaydash/latest/install.ps1 | iex
 ```
 </CodeGroup>
 
@@ -26,14 +27,14 @@ The shell and Windows installers download the latest release for your architectu
 <AccordionGroup>
   <Accordion title="macOS - shell script">
     ```bash
-    curl -fsSL https://neetoplaydash.com/cli/install.sh | sh
+    curl -fsSL https://neeto-downloads.s3.amazonaws.com/cli/NeetoPlaydash/latest/install.sh | sh
     ```
 
-    Installs to `/usr/local/bin` and may prompt for `sudo`.
+    Installs to `/usr/local/bin` and may prompt for `sudo`. To update a Homebrew installation, run `brew upgrade neetoplaydash`.
   </Accordion>
   <Accordion title="Windows - Command Prompt (CMD)">
     ```cmd
-    curl -fsSL https://neetoplaydash.com/cli/install.cmd -o install.cmd && install.cmd
+    curl -fsSL https://neeto-downloads.s3.amazonaws.com/cli/NeetoPlaydash/latest/install.cmd -o install.cmd && install.cmd
     ```
 
     Extracts to `%LOCALAPPDATA%\Programs\neetoplaydash` and adds it to your user `PATH`. This is equivalent to the PowerShell method.
@@ -60,11 +61,9 @@ neetoplaydash version
 neetoplaydash update
 ```
 
-`update` detects how the CLI was installed and runs the matching upgrade: `brew upgrade` for a Homebrew install, and the install script otherwise. You can also upgrade a Homebrew install directly:
+The command detects how the CLI was installed and runs the matching upgrade: `brew update && brew upgrade neetozone/tap/neetoplaydash` for a Homebrew install, the shell installer for other macOS and Linux installs, and the PowerShell installer on Windows. It prints the command it runs and exits non-zero if that command fails. You can also run the install command for your platform again. See [`neetoplaydash update`](/cli-reference/utility#update).
 
-```bash
-brew upgrade neetoplaydash
-```
+After an upgrade, re-run `neetoplaydash completion <shell>` and any `neetoplaydash setup` command you use so their files match the new version.
 
 <Tip>
   Next, [sign in](/cli/authentication) to a workspace and run `neetoplaydash doctor`

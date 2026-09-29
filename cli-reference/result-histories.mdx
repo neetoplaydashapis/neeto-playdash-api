@@ -1,33 +1,25 @@
 ---
-title: "result-histories"
+title: "Result histories"
 description: "See how one test entity behaved across earlier runs."
 ---
 
 import ResultHistoriesListFlags from '/snippets/cli/result-histories/list.mdx'
 
-Result history answers the question a single failing run cannot: is this failure new, or has this test been flaky for a fortnight? It reports the same entity's status in each earlier run inside a look-back window, alongside the commit and branch of the run it came from.
+A result history is one test entity's status in each earlier run inside a look-back window, alongside the commit and branch of the run it came from. For fields and response details, see the [API reference](/api/result-histories/list).
 
-For fields and response details, see the [API reference](/api/result-histories/list).
+## List result histories
 
-<Note>
-  Sample output on this page uses `--json`. Pretty tables pick their columns
-  from the payload and the terminal width, so they are not reproducible; the
-  JSON envelope is. See [Output formats](/cli/output-formats).
-</Note>
-
-## result-histories list
-
-Lists a test entity's past results, counting back from an anchor date.
-
-### Required arguments
-
-- `<test_entity_id>` - the entity whose history to read, from [`test-entities list`](/cli-reference/test-entities).
-- `--project <project_id>` - the project the run belongs to.
-- `--run <run_id>` - the run the entity was recorded in.
+This command lists a test entity's past results, counting back from an anchor date. Use this when you want to tell a new failure from a long-standing flake.
 
 ```bash
 neetoplaydash result-histories list vhrscje --project pdqmxlz --run kftwnab --days 14
 ```
+
+**Required arguments:**
+
+- `<test_entity_id>` - the entity whose history to read, from [`test-entities list`](/cli-reference/test-entities).
+- `--project <project_id>` - the project the run belongs to.
+- `--run <run_id>` - the run the entity was recorded in.
 
 <ResultHistoriesListFlags />
 
@@ -40,7 +32,7 @@ The window is `--days` long and ends at the anchor date. The anchor is `--starte
   or narrow the window.
 </Note>
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {

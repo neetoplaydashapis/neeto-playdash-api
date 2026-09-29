@@ -1,9 +1,9 @@
 ---
 title: "Examples"
-description: "Prompts that show what the connection can answer."
+description: "Prompts to try once your assistant is connected to NeetoPlaydash."
 ---
 
-You do not need to name tools or remember arguments. Describe what you want and the assistant picks the right calls. These prompts are grouped by the job they do.
+Once [connected](/mcp/connect), ask your assistant in plain language. It picks the right [tools](/mcp/tools), so you do not need to know any tool names. Try prompts like these:
 
 ## Find your way around
 
@@ -63,13 +63,12 @@ These map to `GetProjectInsights`, which aggregates by day rather than reading i
 
 An OAuth connection can read every workspace you approved during sign-in. An API key connection has exactly one.
 
-## Put it together
+## Chain requests together
 
 > Summarize last night's run on main: how many tests failed, what were the top errors, and which of those failures are new rather than flaky?
 
 This is the prompt the whole connection exists for. It fans out across runs, top errors, and result history, and comes back with the shape of the problem rather than a wall of logs.
 
-<Note>
-  Every tool is read-only, so none of these prompts can change your workspace.
-  See [Tools](/mcp/tools) for the exact list.
-</Note>
+<Tip>
+  Ask the assistant to confirm before it creates a project. MCP actions affect your live workspace. Every other tool only reads, so none of the other prompts here can change your workspace.
+</Tip>

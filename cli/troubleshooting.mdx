@@ -1,100 +1,85 @@
 ---
 title: "Troubleshooting"
-description: "Diagnose sign-in, connectivity, and command errors."
+description: "Diagnose authentication and connectivity issues with neetoplaydash doctor."
 ---
 
-Start with `doctor`. It runs every check independently, so one failure does not hide the next.
+## Run the doctor
+
+When something goes wrong, start with `neetoplaydash doctor`. It checks your authentication, API connection, and CLI version.
 
 ```bash
 neetoplaydash doctor
 ```
 
-```
-✓ Authentication: authenticated as oliver.smith@example.com on acme.neetoplaydash.com
-✓ API connection: https://acme.neetoplaydash.com (responding in 214ms)
-✓ CLI version: 1.0.9
-```
+When multiple workspaces are signed in, name the one to check:
 
-It reports whether you are signed in, whether the workspace responds, and which version is running. When more than one workspace is signed in, pass `--subdomain`.
+```bash
+neetoplaydash doctor --subdomain your-workspace
+```
 
 ## Common errors
 
+When a command fails, it prints an error message to standard error and exits with status 1. Usage errors such as an unknown flag or a missing argument add `Run 'neetoplaydash --help' for usage.`
+
 <AccordionGroup>
   <Accordion title="Not authenticated. Run 'neetoplaydash login' to authenticate.">
-    The credential store is empty. Run `neetoplaydash login` and complete the browser sign-in. See [Authentication](/cli/authentication).
+    **Problem**: no workspace is signed in. <br />
+    **Solution**: run [`neetoplaydash login --subdomain <name>`](/cli/authentication).
   </Accordion>
-
-  <Accordion title="Multiple subdomains authenticated (acme, globex); specify --subdomain.">
-    More than one workspace is signed in, so the CLI cannot pick one for you. Add `--subdomain <name>` to the command. The message lists every signed-in workspace. `logout` ends the same message with `specify --subdomain or --all`, because `--all` signs out of every workspace at once.
+  <Accordion title="Multiple subdomains authenticated (acme, beta); specify --subdomain.">
+    **Problem**: more than one workspace is signed in, so the target is ambiguous. <br />
+    **Solution**: add `--subdomain <name>` to the command. For `logout`, `--all` signs out of every workspace.
   </Accordion>
-
+  <Accordion title='Not authenticated for "foo". Authenticated subdomains: acme, beta.'>
+    **Problem**: the `--subdomain` value does not match any signed-in workspace. <br />
+    **Solution**: use one of the listed subdomains, or [sign in](/cli/authentication) to the new one.
+  </Accordion>
   <Accordion title="Subdomain not found. Please check that you entered the correct subdomain.">
-    `login` could not find a NeetoPlaydash workspace at the subdomain you gave. The subdomain is the first part of the workspace URL: for `https://acme.neetoplaydash.com` it is `acme`, not the full host.
+    **Problem**: `neetoplaydash login` could not find a workspace at `<subdomain>.neetoplaydash.com`. <br />
+    **Solution**: use the first part of your workspace URL. For `https://spinkart.neetoplaydash.com`, enter `spinkart`.
   </Accordion>
-
   <Accordion title="Authentication session expired. Please try again.">
-    The browser sign-in was not completed in time, or was completed after the session had expired. Run `neetoplaydash login` again and finish the sign-in within 2 minutes. `NeetoPlaydash CLI authentication timed out after 2 minutes. Please try again.` means the same thing.
+    **Problem**: the browser sign-in was not approved before the session expired. `NeetoPlaydash CLI authentication timed out after 5 minutes. Please try again.` means the CLI stopped waiting. <br />
+    **Solution**: run `neetoplaydash login` again and approve the sign-in in the browser. If the browser does not open, visit the URL the CLI prints.
   </Accordion>
-
   <Accordion title="Could not connect to NeetoPlaydash. Check your internet connection">
-    The request never reached the workspace. Run `neetoplaydash doctor` to see whether the workspace URL responds, and check `NEETOPLAYDASH_BASE_URL` if you have set it.
+    **Problem**: the CLI could not reach the API. <br />
+    **Solution**: check your network and run `neetoplaydash doctor`. If [`NEETOPLAYDASH_BASE_URL`](/cli/authentication#environment-variables) is set, confirm it points at a reachable server.
   </Accordion>
-
-  <Accordion title="Flag --project cannot be blank. / Argument &quot;run_id&quot; cannot be blank.">
-    A required flag or positional argument was passed as an empty string, usually from an unset shell variable. Check the variable holds the id you expect.
+  <Accordion title='required flag(s) "xxx" not set'>
+    **Problem**: a required flag was omitted. <br />
+    **Solution**: check the command's [reference page](/cli-reference/overview) or run `neetoplaydash <command> --help` for the required flags.
   </Accordion>
-
-  <Accordion title="Not authenticated for &quot;foo&quot;. Authenticated subdomains: acme, globex.">
-    The `--subdomain` you passed is not signed in. Check the spelling against the list in the message, or sign in with `neetoplaydash login --subdomain foo`.
+  <Accordion title='Flag --project cannot be blank. / Argument "run_id" cannot be blank.'>
+    **Problem**: a required flag or positional argument was passed as an empty string, usually from an unset shell variable. <br />
+    **Solution**: check that the variable holds the id you expect.
   </Accordion>
-
-  <Accordion title="unknown flag / unknown command / accepts N arg(s)">
-    A usage error. The CLI prints the message followed by `Run 'neetoplaydash --help' for usage.` Check the positional arguments a command needs on its [reference page](/cli-reference/overview), or run `neetoplaydash <command> --help`.
+  <Accordion title="API error (422): <message>">
+    **Problem**: the server rejected the request. The CLI prints `API error (<status>): <message>`, one line per additional error, and a `Suggestion:` line for common statuses: 401 (sign in again), 403 (no permission), 404 (check the ID), 422 (check required fields with `--help`), and 429 (rate limited, wait and retry). <br />
+    **Solution**: follow the suggestion. For 401, run `neetoplaydash login` to refresh the session.
   </Accordion>
-
+  <Accordion title="API error (400): Invalid date range format">
+    **Problem**: `insights show` received a `--start-date` or `--end-date` that is not `YYYY-MM-DD`. When `--start-date` is older than the most recent 3 months, the message is `Insights are available only for the most recent 3 months` with the earliest date you can use. <br />
+    **Solution**: pass dates as `YYYY-MM-DD`, with `--start-date` inside the most recent 3 months.
+  </Accordion>
   <Accordion title="A command returns fewer results than the dashboard shows">
-    List commands are paginated and default to a single page. Raise `--page-size` (max 50 for `projects list` and `runs list`, 100 for `test-entities list`) or walk the pages with `--page`, using `pagination.total_pages` from the [JSON envelope](/cli/output-formats) to know when to stop. A `--page-size` above the cap prints `Warning: --page-size N is above this command's maximum of M` on stderr, and the server clamps the page to the cap.
+    **Problem**: list commands are paginated and return one page by default. <br />
+    **Solution**: raise `--page-size` (max 50 for `projects list` and `runs list`, 100 for `test-entities list`) or walk the pages with `--page`. See [Pagination](/cli/output-formats#pagination).
   </Accordion>
-
   <Accordion title="A test entity id is refused for a run you know it ran in">
-    A test entity id must name an entity that the given run recorded. An entity that ran only in other runs is refused rather than returned empty. Confirm the id with `neetoplaydash test-entities list <run_id> --project <project_id>`.
+    **Problem**: a test entity id must name an entity that the given run recorded. An entity that ran only in other runs is refused. <br />
+    **Solution**: confirm the id with `neetoplaydash test-entities list <run_id> --project <project_id>`.
+  </Accordion>
+  <Accordion title="Claude Code not found (~/.claude/ does not exist).">
+    **Problem**: `neetoplaydash setup claude` requires Claude Code to have been run at least once. <br />
+    **Solution**: install and open Claude Code, then run the command again.
   </Accordion>
 </AccordionGroup>
 
-## API errors
-
-Errors from the server come back as `API error (<status>): <message>`, followed by a suggestion for the statuses the CLI recognises:
-
-```text
-API error (404): Not Found
-
-Suggestion: Resource not found. Check the ID and try again.
-```
-
-| Status | Suggestion |
-| --- | --- |
-| 401 | Authentication session expired. Run 'neetoplaydash login' to re-authenticate. |
-| 403 | You do not have permission to perform this action. |
-| 404 | Resource not found. Check the ID and try again. |
-| 422 | Check required fields with 'neetoplaydash &lt;command&gt; --help'. |
-| 429 | Rate limited. Wait and try again. |
-
-The message is the server's own. See [HTTP response codes](/api/response-codes) for what each status means. A 401 means the stored session is no longer valid: sign in again with `neetoplaydash login`. `insights show` returns a 400 with `Invalid date range format` for a date that is not `YYYY-MM-DD`, and `Insights are available only for the most recent 3 months` with the earliest date you may use when `--start-date` is too old.
-
-## The command runs but the output looks wrong
-
-Pretty tables choose their columns from the payload and the terminal width, so they can leave a field out. Re-run with `--json` to see the complete record:
+## Check the version
 
 ```bash
-neetoplaydash runs list pdqmxlz --json
+neetoplaydash version
 ```
 
-## Still stuck?
-
-Confirm you are on the latest CLI:
-
-```bash
-neetoplaydash update
-```
-
-Then contact [support@neetoplaydash.com](mailto:support@neetoplaydash.com) or visit the [help center](https://help.neetoplaydash.com). Including the output of `neetoplaydash doctor` and `neetoplaydash version` speeds this up considerably.
+Prints the CLI version, commit hash, and build date - useful when reporting an issue. To upgrade, run [`neetoplaydash update`](/cli-reference/utility#update).

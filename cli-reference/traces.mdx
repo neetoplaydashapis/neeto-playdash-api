@@ -1,36 +1,28 @@
 ---
-title: "traces"
+title: "Traces"
 description: "Fetch Playwright trace viewer links for a run or a single test."
 ---
 
 import TracesListFlags from '/snippets/cli/traces/list.mdx'
 
-A Playwright trace records everything the browser did during a test: the DOM at each step, network calls, console output, and screenshots. These commands hand you links that open those traces in Playwright's viewer, which is where a failure stops being a stack trace and starts being something you can step through.
+A Playwright trace records everything the browser did during a test: the DOM at each step, network calls, console output, and screenshots. The CLI returns links that open those traces in Playwright's viewer. For fields and response details, see the [API reference](/api/traces/list).
 
-For fields and response details, see the [API reference](/api/traces/list).
+## List traces
 
-<Note>
-  Sample output on this page uses `--json`. Pretty tables pick their columns
-  from the payload and the terminal width, so they are not reproducible; the
-  JSON envelope is. See [Output formats](/cli/output-formats).
-</Note>
-
-## traces list
-
-Lists trace viewer links for every test entity in a run, or for one entity when `--test-entity-id` is given.
-
-### Required arguments
-
-- `<run_id>` - the run whose traces to list, from [`runs list`](/cli-reference/runs).
-- `--project <project_id>` - the project the run belongs to.
+This command lists trace viewer links for every test entity in a run, or for one entity when `--test-entity-id` is given. Use this when you want to step through a failure in the browser.
 
 ```bash
 neetoplaydash traces list kftwnab --project pdqmxlz --test-entity-id vhrscje
 ```
 
+**Required arguments:**
+
+- `<run_id>` - the run whose traces to list, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
 <TracesListFlags />
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {

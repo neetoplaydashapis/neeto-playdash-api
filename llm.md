@@ -22,3 +22,5 @@
    Every other page under `cli/` and `cli-reference/` is hand-written and safe to edit. When the CLI gains a new
    top-level resource, add it to `groupToPage` in `scripts/generate-cli-reference.mjs`; the generator warns on stderr
    for anything unmapped.
+
+6. **Write setup pages as steps, not explanations.** Start a page or a tab with the first step, not with a line that says what the page is for ("Pick your agent below"). Each numbered step is one action the reader takes. Name the exact place to start, such as "Go to chatgpt.com and open Settings", not only "Open Settings". A page the reader visits is a link in the sentence, such as "Go to [chatgpt.com/plugins](https://chatgpt.com/plugins)", never a bare URL in a code block. Code blocks are only for text the reader pastes, such as the server URL or a config file. Leave out why a step works (how a client discovers OAuth, why a key is missing from a file) and vendor history such as renamed menus. If a setting can be hidden, for example by a workspace admin, say in one line what to do when it is missing.

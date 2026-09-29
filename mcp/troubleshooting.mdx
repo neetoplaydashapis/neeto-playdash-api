@@ -1,85 +1,74 @@
 ---
 title: "Troubleshooting"
-description: "Fix connection, authentication, and tool errors."
+description: "What to check when an assistant cannot reach NeetoPlaydash."
 ---
 
-The checks depend on how you connected, so start with the section that matches.
-
-## The server does not appear in the client
-
 <AccordionGroup>
-  <Accordion title="Restart the client">
-    Most clients read their MCP configuration only at startup. Fully quit and reopen it - reloading a window is not always enough. In Claude Code, run `/mcp` to see the current state.
+  <Accordion title="The assistant does not see any NeetoPlaydash tools">
+    **Restart the client first.** Every client reads its MCP config at startup, and Cursor can also reload the window from the command palette. Then check the items for your kind of client.
+
+    On Claude or ChatGPT, confirm that you added the connector and finished the sign-in. In ChatGPT, the plugin is created only after you tick **I understand and want to continue**.
+
+    On Claude Code, Cursor, Gemini CLI, Codex, VS Code, Windsurf, or Antigravity, which read a config file:
+
+    1. **Check the config key.** Claude Code, Cursor, Gemini CLI, Windsurf, and Antigravity nest servers under `mcpServers`. VS Code uses `servers`, and Codex uses a `[mcp_servers.<name>]` section in TOML. A server under the wrong key is ignored silently.
+    2. **Check the URL key.** Windsurf and Antigravity expect `serverUrl`, and Gemini CLI expects `httpUrl` because it reserves `url` for SSE. Claude Code, Codex, Cursor, and VS Code expect `url`.
+    3. **Check the endpoint.** It is `https://connect.neetoplaydash.com/mcp/messages`, with no trailing slash.
+    4. **Check the syntax.** In JSON a trailing comma or an unclosed brace makes the whole file unreadable, which takes out any other servers too.
+
+    Full snippets for each client are on [Connect agent](/mcp/connect).
   </Accordion>
 
-  <Accordion title="Check the top-level key and URL field">
-    These differ by client and are the most common mistake:
+  <Accordion title="ChatGPT does not show Developer mode">
+    Go to [chatgpt.com](https://chatgpt.com) and open **Settings → Security and login**. **Developer mode** is in that section.
 
-    | Client | Top-level key | URL field |
-    | --- | --- | --- |
-    | Claude Code | `mcpServers` | `url` |
-    | Cursor | `mcpServers` | `url` |
-    | Gemini CLI | `mcpServers` | `httpUrl` |
-    | VS Code | `servers` | `url` |
-    | Windsurf | `mcpServers` | `serverUrl` |
-
-    Gemini CLI's `url` means SSE, so a server configured with it will not connect over HTTP. Codex uses TOML rather than JSON: `[mcp_servers.neetoplaydash]` in `~/.codex/config.toml`.
+    If it is not there, your ChatGPT workspace admin has turned it off. Ask them to allow it, then follow the ChatGPT steps in [Connect agent](/mcp/connect).
   </Accordion>
 
-  <Accordion title="Check the endpoint">
-    It is `https://connect.neetoplaydash.com/mcp/messages` - the `/mcp/messages` path matters, and it is not your workspace subdomain. Confirm the host is reachable:
+  <Accordion title="The connection is refused or unauthorized">
+    On an API key connection, the `Authorization` header must read `Bearer YOUR_API_KEY`, with the word `Bearer` and a single space before the key. Confirm the key has not been revoked, and that it belongs to the workspace you expect: a key generated in one workspace does not work in another. Generate a new key from [workspace settings](https://help.neetoplaydash.com/articles/api-keys) if you are unsure.
 
-    ```bash
-    curl -s https://connect.neetoplaydash.com/.well-known/oauth-protected-resource
-    ```
-
-    That returns JSON on a healthy server, without any credential.
+    On an OAuth connection there is no key to check. Remove the connector and add it again to run the sign-in from the start.
   </Accordion>
 
-  <Accordion title="Validate the config file">
-    A trailing comma or an unquoted key makes the whole file unreadable, and most clients fail silently rather than reporting it. Run the file through a JSON validator, or `jq . ~/.cursor/mcp.json`.
-  </Accordion>
-</AccordionGroup>
-
-## OAuth connections
-
-<AccordionGroup>
-  <Accordion title="The browser never opens">
-    Most clients trigger the sign-in when the server first challenges them, not when you save the config. Send a prompt that uses the tools, or trigger it explicitly: `/mcp` in Claude Code, `codex mcp login neetoplaydash` for Codex, `/mcp auth neetoplaydash` for Gemini CLI.
+  <Accordion title="The client sends a key when you meant to sign in">
+    A client that finds a credential in its config never starts the OAuth flow. Remove the `headers` block, or the `bearer_token_env_var` line in Codex, and restart the client. It then answers the server's 401 by opening the sign-in.
   </Accordion>
 
-  <Accordion title="A workspace you expected is missing">
-    An OAuth connection reaches only the workspaces you approved during sign-in. Ask the assistant to run `ListWorkspaces` to see what it actually has. To change the set, revoke the connection in your client and sign in again, approving the workspaces you want.
+  <Accordion title="The client asks you to sign in when you meant to use a key">
+    The opposite case: the credential is missing, so the client falls back to OAuth. Add the `headers` block with `"Authorization": "Bearer YOUR_API_KEY"`, or set `bearer_token_env_var = "NEETOPLAYDASH_API_KEY"` in Codex and export that variable, then restart the client. Codex takes the *name* of an environment variable, not the key itself.
   </Accordion>
 
-  <Accordion title="You are asked to sign in repeatedly">
-    Refreshing the access token needs the `offline_access` scope. If your client requested only `read`, it has no refresh token and must sign in again each time the access token expires. Remove and re-add the server so it registers afresh.
+  <Accordion title="The OAuth sign-in fails at the workspace step">
+    The first screen asks for a workspace subdomain, not a full URL or an email address. For `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/mcp/workspace-subdomain).
   </Accordion>
 
-  <Accordion title="You signed in as the wrong account">
-    The grant belongs to whichever NeetoPlaydash user approved it. Sign out of NeetoPlaydash in your browser, remove the server from your client, then add it again and approve as the right account.
-  </Accordion>
-</AccordionGroup>
+  <Accordion title="A tool is refused because a permission was not granted">
+    The approval screen has one optional permission, **Create and update**, and a tool that needs it is refused with a message naming it when you left it unticked. Nothing is broken and nothing half happened.
 
-## API key connections
-
-<AccordionGroup>
-  <Accordion title="401, invalid_token, or &quot;Missing authentication token&quot;">
-    The header must read `Authorization: Bearer YOUR_API_KEY` - the `Bearer ` prefix included, the literal placeholder replaced. Check the key has not been revoked on your workspace's API keys screen, and that you copied it whole.
+    To grant it, remove the connector and add it again, ticking the permission this time. See [Authentication](/mcp/authentication#what-you-approve). An API key connection carries every permission, so this cannot happen on one.
   </Accordion>
 
-  <Accordion title="The tools work but return another workspace's data">
-    An API key belongs to exactly one workspace, and that is the only one it reads. Generate a key in the workspace you meant, or connect with OAuth, which can span the workspaces you approve.
+  <Accordion title="The assistant reaches the wrong workspace">
+    An OAuth connection covers the workspaces you ticked while approving it. Name the workspace in your prompt, or ask the assistant to list the workspaces it can reach. To add another one, run the sign-in again and tick it.
+
+    An API key belongs to exactly one workspace, so a key connection reaching the wrong one means the wrong key. Add the server a second time, with the other key and a different server name.
   </Accordion>
 
-  <Accordion title="Codex reports no credential">
-    `bearer_token_env_var` takes the **name** of an environment variable, not the key. Set `NEETOPLAYDASH_API_KEY` in the environment Codex runs in, and leave the config naming the variable.
+  <Accordion title="VS Code never offers the tools">
+    MCP needs VS Code 1.99 or later with GitHub Copilot running in **Agent** mode. It is not available in Ask or Edit mode. Check the version, switch Copilot to Agent mode, and confirm that `.vscode/mcp.json` is in the workspace you have open. On an API key connection, VS Code prompts for the key the first time the server is used, so answer that prompt.
   </Accordion>
-</AccordionGroup>
 
-## Tool errors
+  <Accordion title="Windsurf or Antigravity connects but the tools are missing">
+    Enable the server after saving the config: **Settings → Cascade → MCP Servers** in Windsurf, **Settings → Customizations** in Antigravity. Windsurf also caps the total number of tools at 100 across every connected server, so turn off servers you are not using and reload.
+  </Accordion>
 
-<AccordionGroup>
+  <Accordion title="Claude shows the connector as unauthorized">
+    Open **[Customize > Connectors](https://claude.ai/customize/connectors)**, remove NeetoPlaydash, and add it again as a custom connector. See [Connect agent](/mcp/connect).
+
+    On a Team plan, an Owner must first add the server URL under **[Organization settings > Connectors](https://claude.ai/admin-settings/connectors)**.
+  </Accordion>
+
   <Accordion title="A test entity id is refused">
     An id must name an entity the given run recorded. One that ran only in other runs is refused rather than returned with a placeholder status. Ask the assistant to list the run's test entities first.
   </Accordion>
@@ -96,11 +85,17 @@ The checks depend on how you connected, so start with the section that matches.
     Those URLs are time-limited. Ask for them again when you are about to open them rather than reusing an old response.
   </Accordion>
 
-  <Accordion title="Windsurf reports too many tools">
-    Cascade allows up to 100 tools across every connected server. Turn off servers you are not using.
+  <Accordion title="Check that the server is reachable">
+    The server publishes its OAuth metadata without any credential, so one request tells you whether the problem is on the server or in your client:
+
+    ```bash
+    curl -s https://connect.neetoplaydash.com/.well-known/oauth-authorization-server
+    ```
+
+    A JSON document whose `issuer` is `https://connect.neetoplaydash.com` means the host is reachable and answering, so look at the client's setup next. It does not prove that every tool call succeeds. No answer, or an error page, means the server cannot be reached from your network. Try again in a few minutes, and if it persists, tell us.
   </Accordion>
 </AccordionGroup>
 
-## Still stuck?
+## Still stuck
 
-Contact [support@neetoplaydash.com](mailto:support@neetoplaydash.com) or visit the [help center](https://help.neetoplaydash.com). Include which client you are using, whether you connected with OAuth or an API key, and the exact error text.
+Reach us through the [help center](https://help.neetoplaydash.com), or at [support@neetoplaydash.com](mailto:support@neetoplaydash.com). Tell us which client you are using and what the assistant reports when it tries a NeetoPlaydash tool.

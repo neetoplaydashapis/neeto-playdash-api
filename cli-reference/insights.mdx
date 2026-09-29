@@ -1,32 +1,23 @@
 ---
-title: "insights"
+title: "Insights"
 description: "Read a project's run and test trends over a date range."
 ---
 
 import InsightsShowFlags from '/snippets/cli/insights/show.mdx'
 
-Where `runs` and `test-entities` tell you about one execution, `insights` aggregates across many: how many runs passed each day, how long they took, and how the test results split between passed, failed, skipped, flaky, and timed out. It answers "is this suite getting better or worse?" rather than "what broke last night?".
+An insight report aggregates a project's runs over a date range: how many runs passed each day, how long they took, and how the test results split between passed, failed, skipped, flaky, and timed out. For fields and response details, see the [API reference](/api/insights/get).
 
-For fields and response details, see the [API reference](/api/insights/get).
+## Show insights
 
-<Note>
-  Sample output on this page uses `--json`. The pretty format for this command
-  is a summary line plus a per-day table for each section, because the generic
-  printer would collapse the nested payload. See [Output formats](/cli/output-formats).
-</Note>
-
-## insights show
-
-Shows the project's daily and overall run and test insights for a date range. `get` is
-still accepted as an alias for `show`.
-
-### Required arguments
-
-- `<project_id>` - the project to report on, from [`projects list`](/cli-reference/projects).
+This command shows the project's daily and overall run and test insights for a date range. Use this when you want to see whether the suite is improving or drifting. `get` is still accepted as an alias for `show`. In pretty output it prints a summary line plus a per-day table for each section.
 
 ```bash
 neetoplaydash insights show pdqmxlz --start-date 2026-07-15 --branch main
 ```
+
+**Required arguments:**
+
+- `<project_id>` - the project to report on, from [`projects list`](/cli-reference/projects).
 
 <InsightsShowFlags />
 
@@ -48,7 +39,7 @@ The response always reports the `start_date` and `end_date` actually used, so yo
 neetoplaydash insights show pdqmxlz --tags nightly,smoke --timezone America/New_York
 ```
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": {
     "start_date": "2026-07-15",

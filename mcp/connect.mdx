@@ -1,293 +1,336 @@
 ---
 title: "Connect agent"
-description: "Step by step setup for Claude, ChatGPT, and other AI agents."
+description: "Step-by-step setup for Claude, ChatGPT, and other AI agents."
 ---
-
-Pick your agent below and follow its steps.
-
-Claude and ChatGPT connect by signing in with your NeetoPlaydash account. The other agents can sign in the same way, or use an API key instead. For the server URL and which agent supports which option, see [MCP server](/mcp/server). For what each option lets the agent see, see [Authentication](/mcp/authentication).
 
 ## Sign in with your NeetoPlaydash account
 
 <Tabs>
   <Tab title="Claude">
-    NeetoPlaydash is not listed in Anthropic's connector directory, so you add it yourself as a custom connector.
+    1. Open **[Customize > Connectors](https://claude.ai/customize/connectors)**, click **Add**, then click **Add custom connector**.
 
-    Open **[Settings → Connectors](https://claude.ai/customize/connectors)**, click **Add**, then **Add custom connector**.
+       <Frame caption="Add custom connector is the only item under the Add button.">
+         <img src="/assets/mcp/claude-add-menu.png" alt="Menu under the Add button in Claude's Connectors settings, with the single item Add custom connector" />
+       </Frame>
 
-    <Frame caption="The Add menu in Claude's Connectors settings.">
-      <img src="/assets/mcp/claude-add-menu.png" alt="Menu under the Add button in Claude's Connectors settings, with two items, Browse connectors and Add custom connector" />
-    </Frame>
+    2. Enter the name NeetoPlaydash and paste the server URL.
 
-    Give it a **Name** such as `NeetoPlaydash`, paste the URL, and click **Add**:
+       ```
+       https://connect.neetoplaydash.com/mcp/messages
+       ```
 
-    ```
-    https://connect.neetoplaydash.com/mcp/messages
-    ```
+       <Frame caption="The Add custom connector dialog, ready to submit.">
+         <img src="/assets/mcp/claude-add-custom-connector-dialog.png" alt="Claude's Add custom connector dialog with the name NeetoPlaydash and the server URL https://connect.neetoplaydash.com/mcp/messages filled in, and a Continue button" />
+       </Frame>
 
-    Leave **Advanced settings** alone. The optional OAuth client ID and secret there are for servers that cannot register a client on their own, and NeetoPlaydash registers each client automatically.
+    3. Click **Continue** and sign in to NeetoPlaydash. See [What the sign-in looks like](#what-the-sign-in-looks-like).
 
-    <Frame caption="The Add custom connector dialog, ready to submit.">
-      <img src="/assets/mcp/claude-add-custom-connector-dialog.png" alt="Claude's 'Add custom connector' dialog with the name NeetoPlaydash and the server URL https://connect.neetoplaydash.com/mcp/messages filled in, and empty optional OAuth client ID and secret fields under Advanced settings" />
-    </Frame>
+    NeetoPlaydash then works in claude.ai, the Claude desktop app, Claude mobile, and Cowork.
 
-    Then click **Connect** on the new entry. Claude opens NeetoPlaydash in your browser to sign in and approve the workspaces.
+    On a Team plan, an Owner must first add the same server URL under **[Organization settings > Connectors](https://claude.ai/admin-settings/connectors)**. Then connect it from your own Connectors list.
 
-    One connector list backs claude.ai, the Claude desktop app, Claude mobile, and Cowork, so a connector you add in one shows up in the others.
-
-    On a Team plan you may not be able to add it yourself. An Owner adds the same server URL once under **[Organization settings → Connectors](https://claude.ai/admin-settings/connectors)** - the approval covers that one connector rather than custom connectors as a whole - after which everyone connects it from their own Connectors list.
-
-    Anthropic documents the current steps in [Get started with custom connectors using remote MCP](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
+    To disconnect, open **[Customize > Connectors](https://claude.ai/customize/connectors)** and remove NeetoPlaydash.
   </Tab>
+
   <Tab title="ChatGPT">
-    Turn on developer mode first: **Settings → Security and login → Developer mode**. The **Plugins** settings section links straight to it.
+    1. Go to [chatgpt.com](https://chatgpt.com) and open **Settings → Security and login**.
+    2. Turn on **Developer mode**.
 
-    <Frame caption="Developer mode is what lets ChatGPT add an MCP server of its own.">
-      <img src="/assets/mcp/chatgpt-developer-mode.png" alt="ChatGPT's Developer mode setting, tagged Elevated risk, with its toggle switched on" />
-    </Frame>
+       <Frame>
+         <img src="/assets/mcp/chatgpt-developer-mode.png" alt="ChatGPT's Developer mode setting, tagged Elevated risk, with its toggle switched on" />
+       </Frame>
 
-    Then open **Plugins → Browse plugins → + → New Plugin**, enter a name, set **Connection** to **Server URL**, and paste the URL:
+       If you do not see **Developer mode**, your ChatGPT workspace admin has turned it off. Ask them to allow it.
 
-    ```
-    https://connect.neetoplaydash.com/mcp/messages
-    ```
+    3. Go to [chatgpt.com/plugins](https://chatgpt.com/plugins) and click the **plus** button.
+    4. In **New Plugin**, enter the name NeetoPlaydash, set **Connection** to **Server URL**, and paste:
 
-    Leave **Authentication** on **OAuth** - ChatGPT reads NeetoPlaydash's OAuth settings from the URL, so **Advanced OAuth settings** needs nothing from you. Tick **I understand and want to continue**, click **Create**, and approve the sign in.
+       ```
+       https://connect.neetoplaydash.com/mcp/messages
+       ```
 
-    OpenAI documents the current steps in [Building MCP servers for plugins and API integrations](https://developers.openai.com/api/docs/mcp). They renamed the app directory to the plugin directory in July 2026, so older walkthroughs may say "apps" or "connectors" where the UI now says "plugins".
+    5. Leave **Authentication** on **OAuth**.
+    6. Tick **I understand and want to continue**, then click **Create**.
+    7. Sign in to NeetoPlaydash. See [What the sign-in looks like](#what-the-sign-in-looks-like).
   </Tab>
+
   <Tab title="Claude Code">
-    ```bash
-    claude mcp add --transport http neetoplaydash https://connect.neetoplaydash.com/mcp/messages
-    ```
+    1. Add the server:
 
-    Then run `/mcp` inside Claude Code and pick **neetoplaydash** to sign in. Omitting `--header` is what makes this an OAuth connection.
+       ```bash
+       claude mcp add --transport http neetoplaydash https://connect.neetoplaydash.com/mcp/messages
+       ```
+
+    2. Start Claude Code and run `/mcp`.
+    3. Pick **neetoplaydash** and sign in to NeetoPlaydash in the browser.
   </Tab>
-  <Tab title="Codex">
-    Add the server to `~/.codex/config.toml`:
 
-    ```toml
-    [mcp_servers.neetoplaydash]
-    url = "https://connect.neetoplaydash.com/mcp/messages"
-    ```
-
-    Then sign in:
-
-    ```bash
-    codex mcp login neetoplaydash
-    ```
-
-    `auth` defaults to `oauth`, so it does not need to be set. Note that this file is TOML, not JSON.
-  </Tab>
   <Tab title="Cursor">
-    Create or edit `~/.cursor/mcp.json`:
+    1. Add the server to `~/.cursor/mcp.json`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "url": "https://connect.neetoplaydash.com/mcp/messages"
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "url": "https://connect.neetoplaydash.com/mcp/messages"
+           }
+         }
+       }
+       ```
 
-    Save the file, then restart Cursor or reload its window. Cursor prompts you to sign in the first time it connects. The remote server shape has no `type` field.
+    2. Restart Cursor.
+    3. Sign in to NeetoPlaydash when Cursor asks.
   </Tab>
+
   <Tab title="Gemini CLI">
-    Add the server to `~/.gemini/settings.json`:
+    1. Add the server to `~/.gemini/settings.json`. Use `httpUrl`, not `url`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "httpUrl": "https://connect.neetoplaydash.com/mcp/messages"
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "httpUrl": "https://connect.neetoplaydash.com/mcp/messages"
+           }
+         }
+       }
+       ```
 
-    Use `httpUrl`, not `url` - `url` means SSE in Gemini CLI. The CLI discovers the OAuth configuration from the server and opens a browser on the first 401. Run `/mcp auth neetoplaydash` to manage it afterwards.
+    2. Start Gemini CLI and sign in to NeetoPlaydash when it asks.
   </Tab>
+
+  <Tab title="Codex">
+    1. Add the server to `~/.codex/config.toml`:
+
+       ```toml
+       [mcp_servers.neetoplaydash]
+       url = "https://connect.neetoplaydash.com/mcp/messages"
+       ```
+
+    2. Run this command and sign in to NeetoPlaydash in the browser:
+
+       ```bash
+       codex mcp login neetoplaydash
+       ```
+  </Tab>
+
   <Tab title="VS Code">
-    Create `.vscode/mcp.json` in your workspace:
+    You need VS Code 1.99 or later, with GitHub Copilot in **Agent** mode.
 
-    ```json
-    {
-      "servers": {
-        "neetoplaydash": {
-          "type": "http",
-          "url": "https://connect.neetoplaydash.com/mcp/messages"
-        }
-      }
-    }
-    ```
+    1. Create `.vscode/mcp.json` in your workspace. Use `servers`, not `mcpServers`:
 
-    VS Code prompts you to sign in when it first connects. This requires VS Code 1.99 or later and Copilot Chat's **Agent** mode. VS Code uses `servers`, not `mcpServers`.
+       ```json
+       {
+         "servers": {
+           "neetoplaydash": {
+             "type": "http",
+             "url": "https://connect.neetoplaydash.com/mcp/messages"
+           }
+         }
+       }
+       ```
+
+    2. Sign in to NeetoPlaydash when VS Code asks.
   </Tab>
+
   <Tab title="Windsurf">
-    Edit `~/.codeium/windsurf/mcp_config.json`:
+    1. Add the server to `~/.codeium/windsurf/mcp_config.json`. Use `serverUrl`, not `url`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "serverUrl": "https://connect.neetoplaydash.com/mcp/messages"
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "serverUrl": "https://connect.neetoplaydash.com/mcp/messages"
+           }
+         }
+       }
+       ```
 
-    Windsurf uses `serverUrl`, not `url`. Enable the server in **Settings → Cascade → MCP Servers** and sign in when prompted.
+    2. Turn on the server under **Settings → Cascade → MCP Servers**.
+    3. Sign in to NeetoPlaydash when Windsurf asks.
   </Tab>
 </Tabs>
 
-### What the sign in looks like
-
-Whichever client you started from, NeetoPlaydash runs the same steps in your browser.
+### What the sign-in looks like
 
 <Steps>
-  <Step title="Name your workspace">
-    Enter the subdomain of the workspace you want the assistant to read. For `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/mcp/workspace-subdomain).
+  <Step title="Connect your workspace">
+    Enter your workspace subdomain. For `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/mcp/workspace-subdomain).
 
-    <Frame caption="The first screen of the NeetoPlaydash sign in.">
-      <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a workspace subdomain field, a fixed .neetoplaydash.com suffix, and a Continue button" />
+    <Frame caption="The first screen of the NeetoPlaydash sign-in.">
+      <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a field for the workspace subdomain, a .neetoplaydash.com suffix, and a Continue button" />
     </Frame>
   </Step>
   <Step title="Sign in">
-    Sign in to that workspace if you are not signed in already.
+    Sign in to that workspace, if you are not signed in already.
   </Step>
-  <Step title="Check what you are approving">
-    **Authorize access** names the workspace, the email you signed in as, and the host the client sends you back to. Under **What this connection can do**, NeetoPlaydash asks for **Read** and **Stay connected**. Both are marked *always granted*, so both are ticked and disabled and there is nothing for you to choose. NeetoPlaydash advertises no write or delete permission for a client to ask for.
+  <Step title="Choose what the assistant can do">
+    **Read** and **Stay connected** are always on. Tick **Create and update** only if the assistant needs it.
 
-    **Workspaces to connect** appears only when your email belongs to more than one workspace. The one you signed in to is ticked and cannot be unticked; tick any others this connection may read.
+    If your email belongs to more than one workspace, tick each workspace the assistant can reach.
 
-    <Frame caption="The Authorize access screen, with both permissions always granted.">
-      <img src="/assets/mcp/oauth-authorize.png" alt="NeetoPlaydash 'Authorize access' screen showing the workspace, the signed-in email, the host it sends you back to, a 'What this connection can do' fieldset listing Read and Stay connected as ticked, disabled, always granted rows, a 'Workspaces to connect' list, and Cancel and Authorize buttons" />
+    <Frame caption="Choosing the permissions and the workspaces the connection can reach.">
+      <img src="/assets/mcp/oauth-authorize.png" alt="NeetoPlaydash 'Authorize access' screen showing the workspace and signed-in email, a 'What this connection can do' list with Read and Stay connected always granted and Create and update as a tickable box, a 'Workspaces to connect' list with three workspaces, and Cancel and Authorize buttons" />
     </Frame>
   </Step>
   <Step title="Authorize">
-    Click **Authorize**. The browser returns you to the client, which stores the token and lists the NeetoPlaydash tools.
+    Click **Authorize**.
   </Step>
 </Steps>
 
+To add a workspace or a permission later, sign in again and tick it.
+
 ## Use an API key
 
-Replace `YOUR_API_KEY` with your [NeetoPlaydash API key](/mcp/authentication) in each snippet below.
+An API key reaches the whole workspace. Use it for automation. See [Authentication](/mcp/authentication).
 
 <Tabs>
   <Tab title="Claude Code">
-    Add the server to `~/.claude.json`:
+    1. Add the server to `~/.claude.json`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "type": "http",
-          "url": "https://connect.neetoplaydash.com/mcp/messages",
-          "headers": {
-            "Authorization": "Bearer YOUR_API_KEY"
-          }
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "type": "http",
+             "url": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer YOUR_API_KEY"
+             }
+           }
+         }
+       }
+       ```
 
-    Save the file, then restart Claude Code.
+    2. Restart Claude Code.
   </Tab>
-  <Tab title="Codex">
-    Put the key in an environment variable, then name that variable in `~/.codex/config.toml`:
 
-    ```toml
-    [mcp_servers.neetoplaydash]
-    url = "https://connect.neetoplaydash.com/mcp/messages"
-    bearer_token_env_var = "NEETOPLAYDASH_API_KEY"
-    ```
-
-    `bearer_token_env_var` takes the **name** of the environment variable, not the key itself.
-  </Tab>
   <Tab title="Cursor">
-    Create or edit `~/.cursor/mcp.json`:
+    1. Add the server to `~/.cursor/mcp.json`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "url": "https://connect.neetoplaydash.com/mcp/messages",
-          "headers": {
-            "Authorization": "Bearer YOUR_API_KEY"
-          }
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "type": "http",
+             "url": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer YOUR_API_KEY"
+             }
+           }
+         }
+       }
+       ```
 
-    Save the file, then restart Cursor or reload its window.
+    2. Restart Cursor.
   </Tab>
+
   <Tab title="Gemini CLI">
-    Add the server to `~/.gemini/settings.json`:
+    1. Add the server to `~/.gemini/settings.json`. Use `httpUrl`, not `url`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "httpUrl": "https://connect.neetoplaydash.com/mcp/messages",
-          "headers": {
-            "Authorization": "Bearer YOUR_API_KEY"
-          }
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "httpUrl": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer YOUR_API_KEY"
+             }
+           }
+         }
+       }
+       ```
 
-    Use `httpUrl`, not `url` - `url` means SSE in Gemini CLI.
+    2. Restart Gemini CLI.
   </Tab>
-  <Tab title="VS Code">
-    Create `.vscode/mcp.json` in your workspace:
 
-    ```json
-    {
-      "servers": {
-        "neetoplaydash": {
-          "type": "http",
-          "url": "https://connect.neetoplaydash.com/mcp/messages",
-          "headers": {
-            "Authorization": "Bearer YOUR_API_KEY"
-          }
-        }
-      }
-    }
-    ```
+  <Tab title="Codex">
+    1. Add the server to `~/.codex/config.toml`:
+
+       ```toml
+       [mcp_servers.neetoplaydash]
+       url = "https://connect.neetoplaydash.com/mcp/messages"
+       bearer_token_env_var = "NEETOPLAYDASH_API_KEY"
+       ```
+
+    2. Set `NEETOPLAYDASH_API_KEY` to your API key in the shell where you run Codex.
+  </Tab>
+
+  <Tab title="VS Code">
+    You need VS Code 1.99 or later, with GitHub Copilot in **Agent** mode.
+
+    1. Create `.vscode/mcp.json` in your workspace:
+
+       ```json
+       {
+         "inputs": [
+           {
+             "type": "promptString",
+             "id": "neetoplaydash-api-key",
+             "description": "NeetoPlaydash API key",
+             "password": true
+           }
+         ],
+         "servers": {
+           "neetoplaydash": {
+             "type": "http",
+             "url": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer ${input:neetoplaydash-api-key}"
+             }
+           }
+         }
+       }
+       ```
+
+    2. Paste your API key when VS Code asks.
 
     <Warning>
-      `.vscode/mcp.json` lives in your repository. Do not commit an API key - use
-      VS Code's input variables, or connect with OAuth instead.
+      This file lives in your project. Do not paste the key into the file itself, or it can end up in a commit.
     </Warning>
-
-    This requires VS Code 1.99 or later and Copilot Chat's **Agent** mode. VS Code uses `servers`, not `mcpServers`.
   </Tab>
+
   <Tab title="Windsurf">
-    Edit `~/.codeium/windsurf/mcp_config.json`:
+    1. Add the server to `~/.codeium/windsurf/mcp_config.json`. Use `serverUrl`, not `url`:
 
-    ```json
-    {
-      "mcpServers": {
-        "neetoplaydash": {
-          "serverUrl": "https://connect.neetoplaydash.com/mcp/messages",
-          "headers": {
-            "Authorization": "Bearer YOUR_API_KEY"
-          }
-        }
-      }
-    }
-    ```
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "serverUrl": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer YOUR_API_KEY"
+             }
+           }
+         }
+       }
+       ```
 
-    Windsurf uses `serverUrl`, not `url`. Enable the server in **Settings → Cascade → MCP Servers**. Cascade allows up to 100 tools across every connected server, so turn a few others off if it complains.
+    2. Turn on the server under **Settings → Cascade → MCP Servers**.
+  </Tab>
+
+  <Tab title="Antigravity">
+    1. Open **Settings → Customizations → Open MCP Config**.
+    2. Add the server to `mcp_config.json`. Use `serverUrl`, not `url`:
+
+       ```json
+       {
+         "mcpServers": {
+           "neetoplaydash": {
+             "serverUrl": "https://connect.neetoplaydash.com/mcp/messages",
+             "headers": {
+               "Authorization": "Bearer YOUR_API_KEY"
+             }
+           }
+         }
+       }
+       ```
+
+    3. Reload Antigravity.
   </Tab>
 </Tabs>
 
-## Verify the connection
+Replace `YOUR_API_KEY` with a key from your workspace. [Learn how to generate your API key.](https://help.neetoplaydash.com/articles/api-keys)
 
-After your assistant reloads, confirm `neetoplaydash` is listed among its tools. Then try a prompt such as *"List my NeetoPlaydash projects."* Find more in [Examples](/mcp/examples).
+## Confirm the connection
 
-If it does not appear, see [Troubleshooting](/mcp/troubleshooting).
+Ask the assistant *"List my NeetoPlaydash projects."* If it answers with your projects, the connection works. For more prompts, see [Examples](/mcp/examples). If it does not work, see [Troubleshooting](/mcp/troubleshooting).

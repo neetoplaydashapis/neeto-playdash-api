@@ -3,60 +3,60 @@ title: "NeetoPlaydash CLI"
 description: "Inspect Playwright runs, failing tests, and traces from your terminal."
 ---
 
-The **NeetoPlaydash CLI** (`neetoplaydash`) reads your Playwright test results from the terminal. It covers the [external REST API](/api/introduction): list projects and runs, drill into the specs and tests a run recorded, group a run's failures by their shared error, pull a test's history across earlier runs, and fetch Playwright trace viewer links.
+The **NeetoPlaydash CLI** (`neetoplaydash`) lets you read your Playwright test results from your terminal. It covers the [v1 REST API](/api/introduction): list projects and runs, drill into the specs and tests a run recorded, group a run's failures by their shared error, pull a test's history across earlier runs, and fetch Playwright trace viewer links.
 
-The CLI is read-only. It reports what a run recorded; it never changes or deletes anything in your workspace.
+The CLI is read-only. It never changes or deletes anything in your workspace.
 
-It is designed for people comfortable with a terminal. You do not need to be a developer: run `neetoplaydash setup` to connect an AI assistant such as Claude Code or Cursor, then describe the task in plain language.
+It is designed for people comfortable with a terminal or HTTP. You do not need to be a developer: run `neetoplaydash setup` to connect an AI assistant such as Claude or Cursor, then describe the task in plain language.
 
 ## Why use the CLI?
 
 <CardGroup cols={2}>
   <Card title="Triage from the terminal" icon="magnifying-glass">
-    Filter a project's runs by branch and status, then drill straight into the failing specs without clicking through the dashboard.
+    Filter a project's runs by branch and status, then drill straight into the failing specs without leaving your shell.
   </Card>
   <Card title="Group failures by cause" icon="layer-group">
-    `top-errors` collapses a run's failing tests onto their shared error log, so one broken selector reads as one problem rather than forty.
+    `top-errors` collapses a run's failing tests onto their shared error log, so one broken selector reads as one problem.
   </Card>
   <Card title="Separate flakes from breaks" icon="clock-rotate-left">
-    Pull a test's result history across recent runs to tell a brand-new failure from a long-standing flake.
+    Pull a test's result history across recent runs to tell a new failure from a long-standing flake.
   </Card>
   <Card title="Watch the trend" icon="chart-line">
     `insights` aggregates runs and test results by day, so you can see whether the suite is improving or drifting.
   </Card>
   <Card title="Built for AI agents" icon="robot">
-    Token-efficient `--toon` output and one-command setup for Claude Code, Cursor, Copilot, and more.
+    Use token-efficient `--toon` output and one-command setup for Claude, Cursor, Copilot, and more.
   </Card>
 </CardGroup>
 
 ## CLI vs MCP: which should I use?
 
-NeetoPlaydash's [MCP server](/mcp/introduction) reaches exactly what the CLI reaches - projects, runs, the specs and tests a run recorded, top errors, result histories, traces, and insights - and both are read-only. Neither one can do more than the other, so choose on how the question reaches NeetoPlaydash.
+NeetoPlaydash's [MCP server](/mcp/introduction) reaches the same resources the CLI does - projects, runs, test entities, top errors, result histories, traces, and insights - and both are read-only. Neither one can do more than the other, so choose on how the work reaches NeetoPlaydash.
 
 ### Reach for the CLI when
 
-- **No model should be in the loop.** The binary and a signed-in workspace are the whole dependency - nothing to keep running, no model account, nothing metered per invocation. A scheduled agent can reach the MCP server from the same CI job, but every call it makes still costs a model call; `neetoplaydash runs show kftwnab --project pdqmxlz --quiet` does not, whether it runs once or after every suite of the day.
-- **The output feeds another program.** `--quiet` prints the payload on its own and `--json` wraps it with a `pagination` object, so `runs show` can hand a run's `status` to the shell condition that decides whether a deploy proceeds, and `top-errors list --json` can go through `jq` into a Slack message or a spreadsheet. An assistant answers in prose you would have to copy out by hand.
-- **You are sweeping a whole suite rather than chasing one failure.** `neetoplaydash test-entities list kftwnab --project pdqmxlz --kind test --status failed --page-size 100 --json` reports `total_records` and `total_pages` beside the records, so a loop knows how many pages are left and walks every one of them unattended, writing each into a file or straight into `jq`. Over MCP each page is a separate tool call and the rows accumulate in the assistant's context until they crowd out the question you asked.
-- **The check has to be repeatable and reviewable.** The command is the artifact. `neetoplaydash result-histories list vhrscje --project pdqmxlz --run kftwnab --days 30` in a runbook or a pull request makes the identical call next time and returns the identical shape, and a reviewer can see precisely what it asked for. Ask the same thing twice over MCP and the assistant may take a different route to the answer.
+- **No AI assistant should be in the loop.** A cron entry or a CI step runs `neetoplaydash` with nothing but the binary and the workspace you already signed in to - no assistant open, no model account, no tokens spent per run. Over MCP, something with model access has to be running before any call happens at all.
+- **The output feeds another program.** `--quiet` prints the bare run record for a shell check that decides whether a deploy proceeds; `--json` returns records plus pagination for `jq`, a spreadsheet, or your own script. An assistant replies in prose you would have to copy out by hand.
+- **You are working through thousands of records.** Over MCP every page is a separate tool call, and a list that long crowds out the assistant's context. The CLI pages on your terms instead: `test-entities list` with `--page-size 100` and `--json` returns `total_pages` and `total_records` alongside the records, so a loop knows how many pages are left and walks all of them unattended. Each page lands in a file or goes straight into `jq`, so nothing has to be held in memory and the size of the list stops mattering.
+- **You need the same run every time.** A `neetoplaydash` command is plain text you can save. Drop it into a runbook or a pull request and anyone can read exactly what it will do before it runs, then run it later and get the identical call. An assistant works from a prompt rather than a fixed command, so the same request can come out as a different set of calls on a different day.
 
 ### Reach for MCP instead when
 
-- **You are working out what broke, and each step depends on the last answer.** Forty red tests can be one broken selector or forty separate regressions. Getting from the run to the cause means reading a failed attempt's error output, judging what it points at, and only then deciding whether to open the trace, the earlier runs, or a different spec. A command can only carry out a decision you have already made.
-- **The clue is in the conversation, not in the run.** A stack trace someone pasted from Slack, a screenshot from a reviewer, the diff you just wrote - the assistant weighs those against the attempts and error output NeetoPlaydash recorded, and tells you whether they line up. The CLI sees nothing but the flags you type.
-- **One question spans several resources.** "Is this failure new, or has it been flaky for weeks?" walks the project's runs, that run's failing tests, one test's attempts, and that test's history across earlier runs. Over MCP that is a single request with nothing to copy between steps.
-- **The person asking does not use a terminal.** NeetoPlaydash hosts the server, so a QA lead who wants to know whether the suite is drifting simply asks. There is nothing to install, and nothing to update when the CLI moves on.
+- **The details live in your chat, not in your head.** A stack trace pasted from Slack, a reviewer's screenshot, or the diff you just wrote gets weighed against what the run recorded, with no retyping. The CLI cannot see any of it.
+- **You have not decided the steps yet.** "Last night's run went red - find out why" means reading the failed attempts and choosing whether to open the trace, the earlier runs, or a different spec. A command can only carry out a decision you have already made.
+- **One request should cover several steps.** Find the run, list its failing tests, and check one test's history across earlier runs, with no glue between commands.
+- **The person doing it does not use a terminal.** NeetoPlaydash hosts the server, so there is nothing to install or keep updated.
 
 <Tip>
-  You can have both. Run [`neetoplaydash setup claude`](/cli/ai-assistants) and
-  your AI assistant drives the CLI itself, so "why did last night's run go red?"
-  still ends in exact commands you can read, repeat, and paste into a script.
+  You can have both. Run [`neetoplaydash setup claude`](/cli/ai-assistants) and your
+  AI assistant drives the CLI itself, so a plain-language request still ends in
+  an exact command you can read, repeat, and paste into a script.
 </Tip>
 
 ## What you need
 
 1. Access to one or more NeetoPlaydash workspaces.
-2. A NeetoPlaydash account with permission to view projects and test runs in those workspaces.
+2. Permission to view the projects and test runs you want to work with.
 3. The `neetoplaydash` binary. See [Installation](/cli/installation).
 
 <Note>
@@ -69,14 +69,14 @@ NeetoPlaydash's [MCP server](/mcp/introduction) reaches exactly what the CLI rea
 
 Every command below the top level takes the identifiers of the resources above it:
 
-```
+```text
 project ─┬─ insights
          └─ run ─┬─ test entity ─── result history
                  ├─ top errors
                  └─ traces
 ```
 
-`traces` and `top-errors` hang off the run, not off a test entity: `traces list` optionally narrows to one entity with `--test-entity-id`, and `top-errors list` reports across the whole run. `insights` sits beside runs rather than under one, because it aggregates across many of them.
+`traces` and `top-errors` hang off the run, not off a test entity: `traces list` optionally narrows to one entity with `--test-entity-id`, and `top-errors list` reports across the whole run. `insights` sits beside runs and aggregates across many of them.
 
 ## How ids are passed
 
@@ -87,8 +87,8 @@ neetoplaydash top-errors list kftwnab --project pdqmxlz
 neetoplaydash test-entities show vhrscje --project pdqmxlz --run kftwnab
 ```
 
-Every NeetoPlaydash id is a short alphanumeric string, so a row of bare positionals would give you no way to tell a project from a run. `--project` and `--run` are required wherever they apply, and getting one wrong is a flag error rather than a confusing 404. The API also accepts a record's UUID wherever it accepts the short id.
+Every NeetoPlaydash id is a short alphanumeric string. `--project` and `--run` are required wherever they apply. The API also accepts a record's UUID wherever it accepts the short id.
 
-`projects list` needs no id at all, and `insights show` and `runs list` take only a project, so those keep a single positional.
+`projects list` needs no id, and `insights show` and `runs list` take only a project id as their positional argument.
 
-`projects list` is the entry point. Each response ends with breadcrumbs naming the exact next command to run, so you rarely need to assemble an identifier by hand.
+Start with `projects list`. Each response ends with breadcrumbs that name the next command to run.

@@ -1,40 +1,32 @@
 ---
-title: "runs"
+title: "Runs"
 description: "List a project's test runs and read one in full."
 ---
 
 import RunsListFlags from '/snippets/cli/runs/list.mdx'
 import RunsShowFlags from '/snippets/cli/runs/show.mdx'
 
-A run is one execution of a project's Playwright suite, reported by CI. Runs carry the commit, branch, author, tags, and status, plus the aggregate pass/fail counts.
+A run is one execution of a project's Playwright suite, reported by CI. Runs carry the commit, branch, author, tags, and status, plus the aggregate pass/fail counts. For fields and response details, see the [API reference](/api/runs/list).
 
-For fields and response details, see the [API reference](/api/runs/list).
+## List runs
 
-<Note>
-  Sample output on this page uses `--json`. Pretty tables pick their columns
-  from the payload and the terminal width, so they are not reproducible; the
-  JSON envelope is. See [Output formats](/cli/output-formats).
-</Note>
-
-## runs list
-
-Lists the runs recorded for a project, newest first. This is the usual starting point for triage: filter to the branch you care about and the status you are chasing.
-
-### Required arguments
-
-- `<project_id>` - the project whose runs to list, from [`projects list`](/cli-reference/projects).
+This command lists the runs recorded for a project, newest first. Use this when you start triage: filter to the branch and the status you are chasing.
 
 ```bash
 neetoplaydash runs list pdqmxlz --branch main --status failed
 ```
 
+**Required arguments:**
+
+- `<project_id>` - the project whose runs to list, from [`projects list`](/cli-reference/projects).
+
 <RunsListFlags />
 
 `--status` takes exactly one of `running`, `passed`, `failed`, `passing`, `failing`, `timedOut`, `interrupted`.
 
-The server caps this endpoint at 50 records per page. A larger `--page-size` prints a warning on stderr, and the server clamps the page to 50. Check `pagination.page_size` in the response for the size actually applied.
+The server caps this endpoint at 50 records per page. A larger `--page-size` prints a warning on standard error, and the server clamps the page to 50. Check `pagination.page_size` in the response for the size actually applied.
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {
@@ -71,22 +63,22 @@ The server caps this endpoint at 50 records per page. A larger `--page-size` pri
 
 Every run the project holds is listed, including one that reported no test attempts at all. Such a run still carries its commit, branch, and status, but its `run_statistics` is empty and `test-entities list` reports nothing for it.
 
-## runs show
+## Show a run
 
-Shows one run with its summary, aggregate statistics, and the spec files it executed, each with the tests grouped under it. Use it when you want the shape of a whole run in a single call rather than paging through its test entities. `get` is still accepted as an alias for `show`.
-
-### Required arguments
-
-- `<run_id>` - the run to show, from [`runs list`](#runs-list).
-- `--project <project_id>` - the project the run belongs to.
+This command shows one run with its summary, aggregate statistics, and the spec files it executed, each with the tests grouped under it. Use this when you want the shape of a whole run in a single call rather than paging through its test entities. `get` is still accepted as an alias for `show`.
 
 ```bash
 neetoplaydash runs show kftwnab --project pdqmxlz
 ```
 
+**Required arguments:**
+
+- `<run_id>` - the run to show, from [`runs list`](#list-runs).
+- `--project <project_id>` - the project the run belongs to.
+
 <RunsShowFlags />
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": {
     "project_id": "pdqmxlz",

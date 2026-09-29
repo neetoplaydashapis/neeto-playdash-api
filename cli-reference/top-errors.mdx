@@ -1,36 +1,28 @@
 ---
-title: "top-errors"
+title: "Top errors"
 description: "Group a run's failing tests by the error they share."
 ---
 
 import TopErrorsListFlags from '/snippets/cli/top-errors/list.mdx'
 
-When a run goes red with forty failures, they are usually not forty problems. `top-errors` collapses the failing tests onto the error log they share and orders the groups by how many tests each one took down, so the largest cause is the first thing you read.
+A top error is a group of a run's failing tests that share the same error log. Groups are ordered by how many tests each one affected, so the largest cause comes first. For fields and response details, see the [API reference](/api/top-errors/list).
 
-For fields and response details, see the [API reference](/api/top-errors/list).
+## List top errors
 
-<Note>
-  Sample output on this page uses `--json`. The pretty format for this command
-  is a block per error rather than a table, because logs span several lines and
-  the affected tests are nested. See [Output formats](/cli/output-formats).
-</Note>
-
-## top-errors list
-
-Lists the run's errors, most affected tests first.
-
-### Required arguments
-
-- `<run_id>` - the run whose errors to group, from [`runs list`](/cli-reference/runs).
-- `--project <project_id>` - the project the run belongs to.
+This command lists the run's errors, most affected tests first. Use this when a run has many failures and you want to find the shared causes. In pretty output it prints a block per error rather than a table.
 
 ```bash
 neetoplaydash top-errors list kftwnab --project pdqmxlz
 ```
 
+**Required arguments:**
+
+- `<run_id>` - the run whose errors to group, from [`runs list`](/cli-reference/runs).
+- `--project <project_id>` - the project the run belongs to.
+
 <TopErrorsListFlags />
 
-```json Sample output
+```json Sample output (--json)
 {
   "data": [
     {
