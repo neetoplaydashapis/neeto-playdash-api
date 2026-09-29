@@ -1,0 +1,30 @@
+---
+title: "MCP server"
+description: "The NeetoPlaydash MCP server endpoint, transport, and the sign in options each client supports."
+---
+
+NeetoPlaydash hosts the MCP server, so there is nothing to install or run locally.
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://connect.neetoplaydash.com/mcp/messages` |
+| **Transport** | HTTP |
+| **Authentication** | OAuth 2.1, or an API key as a bearer token |
+| **Scopes** | `read`, `offline_access` |
+
+## Which method your client supports
+
+| Client | OAuth | API key |
+| --- | --- | --- |
+| Claude (web, desktop, Cowork) | Yes | - |
+| ChatGPT | Yes | - |
+| Claude Code | Yes | Yes |
+| Codex | Yes | Yes |
+| Cursor | Yes | Yes |
+| Gemini CLI | Yes | Yes |
+| VS Code | Yes | Yes |
+| Windsurf | Yes | Yes |
+
+For the clients that read a config file, the credential's presence is what selects the method: leave the `headers` block out and the client falls back to OAuth when the server challenges it. Read [Authentication](/mcp/authentication) before choosing - the two reach different things.
+
+For step by step setup in each agent, see [Connect agent](/mcp/connect).

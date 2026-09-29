@@ -1,35 +1,13 @@
 ---
 title: "Connect agent"
-description: "Point your AI assistant at the NeetoPlaydash MCP server."
+description: "Step by step setup for Claude, ChatGPT, and other AI agents."
 ---
 
-NeetoPlaydash hosts the MCP server, so there is nothing to install or run locally. Add the endpoint to your assistant's MCP configuration, authenticate, and the NeetoPlaydash tools become available.
+Pick your agent below and follow its steps.
 
-## Server details
+Claude and ChatGPT connect by signing in with your NeetoPlaydash account. The other agents can sign in the same way, or use an API key instead. For the server URL and which agent supports which option, see [MCP server](/mcp/server). For what each option lets the agent see, see [Authentication](/mcp/authentication).
 
-| | |
-| --- | --- |
-| **Endpoint** | `https://connect.neetoplaydash.com/mcp/messages` |
-| **Transport** | HTTP |
-| **Authentication** | OAuth 2.1, or an API key as a bearer token |
-| **Scopes** | `read`, `offline_access` |
-
-## Which method your client supports
-
-| Client | OAuth | API key |
-| --- | --- | --- |
-| Claude (web, desktop, Cowork) | Yes | - |
-| ChatGPT | Yes | - |
-| Claude Code | Yes | Yes |
-| Codex | Yes | Yes |
-| Cursor | Yes | Yes |
-| Gemini CLI | Yes | Yes |
-| VS Code | Yes | Yes |
-| Windsurf | Yes | Yes |
-
-For the clients that read a config file, the credential's presence is what selects the method: leave the `headers` block out and the client falls back to OAuth when the server challenges it. Read [Authentication](/mcp/authentication) before choosing - the two reach different things.
-
-## Connect with OAuth
+## Sign in with your NeetoPlaydash account
 
 <Tabs>
   <Tab title="Claude">
@@ -172,7 +150,7 @@ Whichever client you started from, NeetoPlaydash runs the same steps in your bro
   <Step title="Name your workspace">
     Enter the subdomain of the workspace you want the assistant to read. For `acme.neetoplaydash.com`, enter `acme`. See [Workspace subdomain](/mcp/workspace-subdomain).
 
-    <Frame caption="The first screen of the NeetoPlaydash OAuth flow.">
+    <Frame caption="The first screen of the NeetoPlaydash sign in.">
       <img src="/assets/mcp/oauth-connect-workspace.png" alt="NeetoPlaydash dialog headed 'Connect your workspace' with a workspace subdomain field, a fixed .neetoplaydash.com suffix, and a Continue button" />
     </Frame>
   </Step>
@@ -193,7 +171,7 @@ Whichever client you started from, NeetoPlaydash runs the same steps in your bro
   </Step>
 </Steps>
 
-## Connect with an API key
+## Use an API key
 
 Replace `YOUR_API_KEY` with your [NeetoPlaydash API key](/mcp/authentication) in each snippet below.
 

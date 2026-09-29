@@ -149,6 +149,7 @@
               "mcp/introduction",
               "mcp/workspace-subdomain",
               "mcp/authentication",
+              "mcp/server",
               "mcp/connect",
               "mcp/examples",
               "mcp/troubleshooting"
